@@ -1,4 +1,5 @@
 using Spectre.Console;
+using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using WorkTreeMemo.Core.Git;
 using WorkTreeMemo.Core.Models;
@@ -26,6 +27,8 @@ internal static class CliApplication
             "status" => await ShowStatusAsync(store, version),
             "scan" => await ScanAsync(store, services.GetRequiredService<ScanCoordinator>(), version, false),
             "reindex" => await ScanAsync(store, services.GetRequiredService<ScanCoordinator>(), version, true),
+            "export-json" => await ExportAsync(store, args.Skip(1).FirstOrDefault(), true),
+            "export-markdown" => await ExportAsync(store, args.Skip(1).FirstOrDefault(), false),
             "config" => await ConfigureAsync(store, args.Skip(1).ToArray()),
             "add-root" => await ConfigureAsync(store, ["add-root", .. args.Skip(1)]),
             "remove-root" => await ConfigureAsync(store, ["remove-root", .. args.Skip(1)]),
@@ -68,6 +71,24 @@ internal static class CliApplication
         AnsiConsole.Write(table);
         AnsiConsole.MarkupLine(
             $"[grey]Snapshot: {snapshot.UpdatedAt.LocalDateTime:g} · local Git data only · {snapshot.Repositories.Count} repositories[/]");
+        return 0;
+    }
+
+    private static async Task<int> ExportAsync(AppDataStore store, string? path, bool asJson)
+    {
+        if (string.IsNullOrWhiteSpace(path)) return 2;
+        var snapshot = await store.LoadSnapshotAsync();
+        var notes = await store.LoadNotesAsync();
+        var config = await store.LoadConfigurationAsync();
+        var items = new WipClassifier().Classify(snapshot.Repositories, notes, config.StaleAfterDays,
+            DateTimeOffset.UtcNow, config.IgnoreBranchesOlderThanDays);
+        var output = Path.GetFullPath(path);
+        if (asJson)
+            await File.WriteAllTextAsync(output, JsonSerializer.Serialize(items, new JsonSerializerOptions { WriteIndented = true }));
+        else
+            await File.WriteAllLinesAsync(output, ["# WorkTreeMemo report", "", .. items.Select(item =>
+                $"- **{item.Kind}** — {item.Repository.Repo.Name}: {item.Detail}")]);
+        AnsiConsole.MarkupLine($"[green]Exported:[/] {Escape(output)}");
         return 0;
     }
 
@@ -141,6 +162,8 @@ internal static class CliApplication
         "--remove-root" => "remove-root",
         "--roots" => "roots",
         "--version" or "-v" or "version" => "version",
+        "export-json" => "export-json",
+        "export-markdown" or "export-md" => "export-markdown",
         "--help" or "-h" or "help" => "help",
         _ => value.ToLowerInvariant()
     };

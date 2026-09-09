@@ -100,9 +100,13 @@ public sealed class GitCliReader(TimeSpan? commandTimeout = null)
             }
         }
 
-        var stashOutput = await RunGitAsync(path, "stash", "list", "--format=%gd", ct);
-        var stashCount = stashOutput.Split('\n', StringSplitOptions.RemoveEmptyEntries).Length;
-        return new(path, branch, modified, staged, untracked, stashCount);
+        var stashOutput = await RunGitAsync(path, "stash", "list", "--format=%ci", ct);
+        var stashDates = stashOutput.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var latestStashAt = DateTimeOffset.TryParse(stashDates.FirstOrDefault(), CultureInfo.InvariantCulture,
+            DateTimeStyles.AllowWhiteSpaces, out var parsedStashDate)
+            ? (DateTimeOffset?)parsedStashDate
+            : null;
+        return new(path, branch, modified, staged, untracked, stashDates.Length, latestStashAt);
     }
 
     private async Task<string> RunGitAsync(string workingDirectory, string firstArgument, string secondArgument,
@@ -143,6 +147,7 @@ public sealed class GitCliReader(TimeSpan? commandTimeout = null)
         };
         foreach (var argument in arguments) start.ArgumentList.Add(argument);
         using var process = Process.Start(start) ?? throw new InvalidOperationException("git process could not start.");
+        TryLowerPriority(process);
         var stdout = process.StandardOutput.ReadToEndAsync(timeout.Token);
         var stderr = process.StandardError.ReadToEndAsync(timeout.Token);
         await process.WaitForExitAsync(timeout.Token);
@@ -153,6 +158,23 @@ public sealed class GitCliReader(TimeSpan? commandTimeout = null)
                 ? $"git exited with {process.ExitCode}."
                 : error.Trim());
         return output;
+    }
+
+    private static void TryLowerPriority(Process process)
+    {
+        try
+        {
+            process.PriorityClass = ProcessPriorityClass.BelowNormal;
+        }
+        catch (InvalidOperationException)
+        {
+        }
+        catch (PlatformNotSupportedException)
+        {
+        }
+        catch (Win32Exception)
+        {
+        }
     }
 
     private static int ParseTrack(string track, char marker) =>

@@ -6,4 +6,5 @@ public sealed record RepoSnapshot(
     IReadOnlyList<WorktreeState> Worktrees,
     DateTimeOffset ScannedAt,
     string? Error = null,
-    DateTimeOffset? DirectoryModifiedAt = null);
+    DateTimeOffset? DirectoryModifiedAt = null,
+    long? DiskSizeBytes = null);

@@ -6,4 +6,5 @@ public sealed record WorktreeState(
     int Modified,
     int Staged,
     int Untracked,
-    int StashCount);
+    int StashCount,
+    DateTimeOffset? LatestStashAt = null);

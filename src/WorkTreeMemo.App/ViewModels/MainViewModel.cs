@@ -23,23 +23,29 @@ public sealed class MainViewModel(
     private Dictionary<string, Note> _notes = [];
     private AppConfiguration _configuration = AppConfiguration.Default;
     private SnapshotDocument _snapshot = new([], DateTimeOffset.MinValue);
+    private IReadOnlyList<ActivityEntry> _activities = [];
 
     private string _searchText = string.Empty;
     private string _noteText = string.Empty;
-    private string _statusText = "Ready";
+    private string _nextStepText = string.Empty;
+    private string _localPathText = string.Empty;
+    private string _snoozeUntilText = string.Empty;
+    private string _statusText = string.Empty;
     private string _gitWarningText = string.Empty;
     private string _updateMessage = string.Empty;
     private string _newRootPath = string.Empty;
+    private string _newSavedViewName = string.Empty;
     private int _newRootDepth = 3;
     private bool _isParked;
     private bool _isBusy;
     private bool _isGitAvailable = true;
     private bool _isUpdateAvailable;
-    private bool _isSettingsOpen;
+    private AppPage _page;
     private bool _isSortAscending = true;
     private FilterOption? _selectedFilter;
     private SortOption? _selectedSortOption;
     private ScanRoot? _selectedRoot;
+    private SavedView? _selectedSavedView;
     private object? _selectedNode;
     private WipRow? _selectedItem;
 
@@ -49,8 +55,14 @@ public sealed class MainViewModel(
     private ICommand? _removeRootCommand;
     private ICommand? _showWorkCommand;
     private ICommand? _showSettingsCommand;
+    private ICommand? _showAboutCommand;
+    private ICommand? _checkForUpdatesCommand;
     private ICommand? _clearSearchCommand;
     private ICommand? _toggleSortDirectionCommand;
+    private ICommand? _saveViewCommand;
+    private ICommand? _applyViewCommand;
+    private ICommand? _snoozeTomorrowCommand;
+    private ICommand? _clearSnoozeCommand;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -59,25 +71,44 @@ public sealed class MainViewModel(
 
     public string Title => "WorkTreeMemo";
     public string VersionText => $"v{applicationVersionProvider.Version}";
+    public bool HasRecentChanges => _activities.Count > 0;
+    public string RecentChangesText => string.Join(Environment.NewLine, _activities.OrderByDescending(activity => activity.DetectedAt)
+        .Take(5).Select(activity => $"{activity.DetectedAt.LocalDateTime:g} · {Path.GetFileName(activity.RepoPath)} · {activity.Description}"));
+    public string ScanHealthText
+    {
+        get
+        {
+            var failures = _snapshot.Repositories.Where(repository => repository.Error is not null).ToList();
+            return failures.Count == 0
+                ? _localizer["ScanHealthGood"]
+                : string.Format(_localizer["ScanHealthErrors"], failures.Count, string.Join(", ", failures.Take(3).Select(repository => repository.Repo.Name)));
+        }
+    }
 
     // ── Navigation ──────────────────────────────────────────────────────
 
     public bool IsSettingsOpen
     {
-        get => _isSettingsOpen;
-        private set
-        {
-            if (Set(ref _isSettingsOpen, value)) OnPropertyChanged(nameof(IsWorkOpen));
-        }
+        get => _page == AppPage.Settings;
+        private set => NavigateTo(value ? AppPage.Settings : AppPage.Work);
     }
 
-    public bool IsWorkOpen => !_isSettingsOpen;
+    public bool IsAboutOpen
+    {
+        get => _page == AppPage.About;
+        private set => NavigateTo(value ? AppPage.About : AppPage.Work);
+    }
 
-    public ICommand ShowWorkCommand => _showWorkCommand ??= new RelayCommand(() => IsSettingsOpen = false);
-    public ICommand ShowSettingsCommand => _showSettingsCommand ??= new RelayCommand(() => IsSettingsOpen = true);
+    public bool IsWorkOpen => _page == AppPage.Work;
+
+    public ICommand ShowWorkCommand => _showWorkCommand ??= new RelayCommand(() => NavigateTo(AppPage.Work));
+    public ICommand ShowSettingsCommand => _showSettingsCommand ??= new RelayCommand(() => NavigateTo(AppPage.Settings));
+    public ICommand ShowAboutCommand => _showAboutCommand ??= new RelayCommand(() => NavigateTo(AppPage.About));
     public ICommand ClearSearchCommand => _clearSearchCommand ??= new RelayCommand(() => SearchText = string.Empty);
     public ICommand ToggleSortDirectionCommand => _toggleSortDirectionCommand ??= new RelayCommand(() =>
         IsSortAscending = !IsSortAscending);
+    public ICommand SnoozeTomorrowCommand => _snoozeTomorrowCommand ??= new AsyncCommand(() => SetSnoozeAsync(DateTimeOffset.UtcNow.AddDays(1)));
+    public ICommand ClearSnoozeCommand => _clearSnoozeCommand ??= new AsyncCommand(() => SetSnoozeAsync(null));
 
     // ── Appearance ──────────────────────────────────────────────────────
 
@@ -162,6 +193,10 @@ public sealed class MainViewModel(
         private set => Set(ref _updateMessage, value);
     }
 
+    public string UpdateCheckStatus { get; private set; } = string.Empty;
+
+    public bool IsCheckingForUpdates { get; private set; }
+
     public string StatusText
     {
         get => _statusText;
@@ -174,6 +209,7 @@ public sealed class MainViewModel(
     public ObservableCollection<SortOption> SortOptions { get; } = CreateSortOptions();
     public ObservableCollection<RepoGroup> Groups { get; } = [];
     public ObservableCollection<ScanRoot> Roots { get; } = [];
+    public ObservableCollection<SavedView> SavedViews { get; } = [];
 
     public int VisibleCount { get; private set; }
 
@@ -254,6 +290,9 @@ public sealed class MainViewModel(
         {
             if (!Set(ref _selectedItem, value)) return;
             NoteText = value?.Note?.Text ?? string.Empty;
+            NextStepText = value?.Note?.NextStep ?? string.Empty;
+            LocalPathText = value?.Note?.LocalPath ?? string.Empty;
+            SnoozeUntilText = value?.Note?.SnoozedUntil?.LocalDateTime.ToString("yyyy-MM-dd") ?? string.Empty;
             IsParked = value?.Note?.IsParked ?? false;
             OnPropertyChanged(nameof(HasSelection));
             OnPropertyChanged(nameof(CanTakeNote));
@@ -271,7 +310,7 @@ public sealed class MainViewModel(
 
     public string SelectedDetail => _selectedItem is null
         ? string.Empty
-        : $"{_selectedItem.Detail}\n\n{_localizer["LocalGitOnly"]}";
+        : $"{_selectedItem.Detail}\n{_selectedItem.EvidenceText}\n\n{_localizer["Repository"]}: {_selectedItem.Repository.Repo.Path}\n{_localizer["Worktree"]}: {_selectedItem.WorktreePath}\n{_localizer["DiskSize"]}: {_selectedItem.DiskSizeText}\n{_localizer["LocalGitOnly"]}";
 
     public string NoteText
     {
@@ -284,6 +323,10 @@ public sealed class MainViewModel(
         get => _isParked;
         set => Set(ref _isParked, value);
     }
+
+    public string NextStepText { get => _nextStepText; set => Set(ref _nextStepText, value); }
+    public string LocalPathText { get => _localPathText; set => Set(ref _localPathText, value); }
+    public string SnoozeUntilText { get => _snoozeUntilText; set => Set(ref _snoozeUntilText, value); }
 
     // ── Settings ────────────────────────────────────────────────────────
 
@@ -304,6 +347,9 @@ public sealed class MainViewModel(
         get => _selectedRoot;
         set => Set(ref _selectedRoot, value);
     }
+
+    public string NewSavedViewName { get => _newSavedViewName; set => Set(ref _newSavedViewName, value); }
+    public SavedView? SelectedSavedView { get => _selectedSavedView; set => Set(ref _selectedSavedView, value); }
 
     /// <summary>Branches untouched for longer than this are hidden. Zero turns the cutoff off.</summary>
     public int IgnoreBranchesOlderThanDays
@@ -331,13 +377,21 @@ public sealed class MainViewModel(
     public ICommand SaveNoteCommand => _saveNoteCommand ??= new AsyncCommand(SaveNoteAsync);
     public ICommand AddRootCommand => _addRootCommand ??= new AsyncCommand(AddRootAsync);
     public ICommand RemoveRootCommand => _removeRootCommand ??= new AsyncCommand(RemoveRootAsync);
+    public ICommand SaveViewCommand => _saveViewCommand ??= new AsyncCommand(SaveViewAsync);
+    public ICommand ApplyViewCommand => _applyViewCommand ??= new RelayCommand(ApplySelectedView);
+    public ICommand CheckForUpdatesCommand => _checkForUpdatesCommand ??= new AsyncCommand(CheckForUpdatesAsync);
 
     // ── Lifecycle ───────────────────────────────────────────────────────
 
     public async Task InitializeAsync()
     {
         _notes = await store.LoadNotesAsync();
+        _activities = await store.LoadActivityAsync();
+        OnPropertyChanged(nameof(HasRecentChanges));
+        OnPropertyChanged(nameof(RecentChangesText));
+        OnPropertyChanged(nameof(ScanHealthText));
         _configuration = await store.LoadConfigurationAsync();
+        RefreshSavedViews();
         OnPropertyChanged(nameof(IsLightTheme));
         OnPropertyChanged(nameof(IsDarkTheme));
         OnPropertyChanged(nameof(IgnoreBranchesOlderThanDays));
@@ -350,50 +404,86 @@ public sealed class MainViewModel(
         IsGitAvailable = gitStatus.IsAvailable;
         if (!gitStatus.IsAvailable)
         {
-            GitWarningText = $"Git CLI is required to scan repositories. {gitStatus.Detail}";
-            StatusText = "Git is unavailable.";
+            GitWarningText = string.Format(_localizer["GitRequired"], gitStatus.Detail);
+            StatusText = _localizer["GitUnavailable"];
             return;
         }
 
-        await ScanAsync(false);
+        if (NeedsStartupScan())
+            await ScanAsync(false);
+        else
+            StatusText = ReadyStatus;
     }
+
+    private bool NeedsStartupScan() =>
+        _snapshot.UpdatedAt == DateTimeOffset.MinValue ||
+        DateTimeOffset.UtcNow >= _snapshot.UpdatedAt + _configuration.ScanInterval;
+
+    private string ReadyStatus => string.Format(_localizer["ReadyStatus"], _snapshot.Repositories.Count);
 
     private async Task CheckForUpdatesAsync()
     {
-        var result = await releaseUpdateChecker.CheckAsync();
-        if (result is not { IsUpdateAvailable: true }) return;
-        IsUpdateAvailable = true;
-        UpdateMessage = $"Version {result.LatestVersion} is available on GitHub.";
+        IsCheckingForUpdates = true;
+        OnPropertyChanged(nameof(IsCheckingForUpdates));
+        UpdateCheckStatus = _localizer["CheckingForUpdates"];
+        OnPropertyChanged(nameof(UpdateCheckStatus));
+        try
+        {
+            var result = await releaseUpdateChecker.CheckAsync();
+            if (result is null)
+            {
+                UpdateCheckStatus = _localizer["UpdateCheckFailed"];
+                return;
+            }
+
+            if (result.IsUpdateAvailable)
+            {
+                IsUpdateAvailable = true;
+                UpdateMessage = string.Format(_localizer["UpdateAvailable"], result.LatestVersion);
+                UpdateCheckStatus = string.Format(_localizer["UpdateAvailable"], result.LatestVersion);
+                return;
+            }
+
+            IsUpdateAvailable = false;
+            UpdateCheckStatus = _localizer["UpdateIsCurrent"];
+        }
+        finally
+        {
+            IsCheckingForUpdates = false;
+            OnPropertyChanged(nameof(IsCheckingForUpdates));
+            OnPropertyChanged(nameof(UpdateCheckStatus));
+        }
     }
 
     public async Task ScanAsync(bool reindex)
     {
         if (!IsGitAvailable)
         {
-            StatusText = "Git is unavailable. Install Git and restart WorkTreeMemo.";
+            StatusText = _localizer["GitUnavailableRestart"];
             return;
         }
 
+        var scanFailed = false;
         try
         {
             IsBusy = true;
-            StatusText = reindex ? "Reindexing…" : "Scanning…";
-            _snapshot = await coordinator.ScanAsync(reindex);
-            RefreshItems();
+            StatusText = reindex ? _localizer["Reindexing"] : _localizer["Scanning"];
+            var snapshot = await coordinator.ScanAsync(reindex);
+            if (!ReferenceEquals(_snapshot, snapshot)) ApplySnapshot(snapshot);
         }
         catch (OperationCanceledException)
         {
-            StatusText = "Scan cancelled.";
+            StatusText = _localizer["ScanCancelled"];
         }
         catch (Exception ex)
         {
-            StatusText = $"Scan failed: {ex.Message}";
+            scanFailed = true;
+            StatusText = string.Format(_localizer["ScanFailed"], ex.Message);
         }
         finally
         {
             IsBusy = false;
-            if (!StatusText.StartsWith("Scan failed", StringComparison.Ordinal))
-                StatusText = $"Ready — {_snapshot.Repositories.Count} repositories";
+            if (!scanFailed) StatusText = ReadyStatus;
             OnPropertyChanged(nameof(LastScanText));
         }
     }
@@ -406,38 +496,84 @@ public sealed class MainViewModel(
         _configuration = _configuration with { ExcludedRepositoryPaths = excludedPaths };
         await store.SaveConfigurationAsync(_configuration);
         RefreshItems();
-        StatusText = "Repository excluded. Reindex to refresh the saved snapshot.";
+        StatusText = _localizer["RepositoryExcluded"];
+    }
+
+    public async Task ToggleFavoriteAsync(RepoGroup group)
+    {
+        var favorites = (_configuration.FavoriteRepositoryPaths ?? [])
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        if (!favorites.Add(group.Path)) favorites.Remove(group.Path);
+        _configuration = _configuration with { FavoriteRepositoryPaths = favorites.ToList() };
+        await store.SaveConfigurationAsync(_configuration);
+        RefreshItems();
+        StatusText = group.IsFavorite ? _localizer["FavoriteRemoved"] : _localizer["FavoriteAdded"];
+    }
+
+    public async Task ToggleFlagAsync(WipRow row)
+    {
+        if (row.Branch is null) return;
+        var key = WipClassifier.NoteKey(row.Repository.Repo.Path, row.Branch.Name);
+        var current = _notes.GetValueOrDefault(key) ?? new Note(string.Empty, false, DateTimeOffset.UtcNow);
+        _notes[key] = current with { IsFlagged = !current.IsFlagged, UpdatedAt = DateTimeOffset.UtcNow };
+        await store.SaveNotesAsync(_notes);
+        RefreshItems();
+        StatusText = row.IsFlagged ? _localizer["FlagRemoved"] : _localizer["FlagAdded"];
     }
 
     public void ApplySnapshot(SnapshotDocument snapshot)
     {
+        if (ReferenceEquals(_snapshot, snapshot)) return;
         _snapshot = snapshot;
         RefreshItems();
-        StatusText = $"Ready — {_snapshot.Repositories.Count} repositories";
+        _ = RefreshActivityAsync();
+        StatusText = ReadyStatus;
+    }
+
+    private async Task RefreshActivityAsync()
+    {
+        _activities = await store.LoadActivityAsync();
+        OnPropertyChanged(nameof(HasRecentChanges));
+        OnPropertyChanged(nameof(RecentChangesText));
+        OnPropertyChanged(nameof(ScanHealthText));
     }
 
     private async Task SaveNoteAsync()
     {
         if (SelectedItem?.Branch is null) return;
-        _notes[WipClassifier.NoteKey(SelectedItem.Repository.Repo.Path, SelectedItem.Branch.Name)] =
-            new(NoteText, IsParked, DateTimeOffset.UtcNow);
+        var key = WipClassifier.NoteKey(SelectedItem.Repository.Repo.Path, SelectedItem.Branch.Name);
+        var current = _notes.GetValueOrDefault(key);
+        var snoozedUntil = DateTimeOffset.TryParse(SnoozeUntilText, out var parsedSnooze) ? parsedSnooze : current?.SnoozedUntil;
+        _notes[key] = new(NoteText, IsParked, DateTimeOffset.UtcNow, current?.IsFlagged ?? false, snoozedUntil,
+            NullIfEmpty(NextStepText), NullIfEmpty(LocalPathText));
         await store.SaveNotesAsync(_notes);
         RefreshItems();
-        StatusText = "Note saved.";
+        StatusText = _localizer["NoteSaved"];
+    }
+
+    private async Task SetSnoozeAsync(DateTimeOffset? until)
+    {
+        if (SelectedItem?.Branch is null) return;
+        var key = WipClassifier.NoteKey(SelectedItem.Repository.Repo.Path, SelectedItem.Branch.Name);
+        var current = _notes.GetValueOrDefault(key) ?? new Note(string.Empty, false, DateTimeOffset.UtcNow);
+        _notes[key] = current with { SnoozedUntil = until, UpdatedAt = DateTimeOffset.UtcNow };
+        await store.SaveNotesAsync(_notes);
+        SnoozeUntilText = until?.LocalDateTime.ToString("yyyy-MM-dd") ?? string.Empty;
+        RefreshItems();
     }
 
     private async Task AddRootAsync()
     {
         if (string.IsNullOrWhiteSpace(NewRootPath))
         {
-            StatusText = "Enter a folder path.";
+            StatusText = _localizer["EnterFolderPath"];
             return;
         }
 
         var path = NormalizePath(NewRootPath);
         if (!Directory.Exists(path))
         {
-            StatusText = "Folder does not exist.";
+            StatusText = _localizer["FolderDoesNotExist"];
             return;
         }
 
@@ -450,7 +586,7 @@ public sealed class MainViewModel(
         await store.SaveConfigurationAsync(_configuration);
         NewRootPath = string.Empty;
         RefreshRoots();
-        StatusText = "Root added. Run Reindex to discover repositories.";
+        StatusText = _localizer["RootAdded"];
     }
 
     private async Task RemoveRootAsync()
@@ -464,7 +600,35 @@ public sealed class MainViewModel(
         await store.SaveConfigurationAsync(_configuration);
         SelectedRoot = null;
         RefreshRoots();
-        StatusText = "Root removed.";
+        StatusText = _localizer["RootRemoved"];
+    }
+
+    private async Task SaveViewAsync()
+    {
+        if (string.IsNullOrWhiteSpace(NewSavedViewName)) return;
+        var filter = SelectedFilter ?? Filters[0];
+        var view = new SavedView(NewSavedViewName.Trim(), SearchText, filter.Kind, filter.FavoritesOnly, filter.FlaggedOnly);
+        var views = (_configuration.SavedViews ?? []).Where(saved => !string.Equals(saved.Name, view.Name, StringComparison.OrdinalIgnoreCase))
+            .Append(view).ToList();
+        _configuration = _configuration with { SavedViews = views };
+        await store.SaveConfigurationAsync(_configuration);
+        NewSavedViewName = string.Empty;
+        RefreshSavedViews();
+    }
+
+    private void ApplySelectedView()
+    {
+        if (SelectedSavedView is null) return;
+        SearchText = SelectedSavedView.SearchText;
+        SelectedFilter = Filters.FirstOrDefault(filter => filter.Kind == SelectedSavedView.Kind &&
+            filter.FavoritesOnly == SelectedSavedView.FavoritesOnly && filter.FlaggedOnly == SelectedSavedView.FlaggedOnly) ?? Filters[0];
+        IsSettingsOpen = false;
+    }
+
+    private void RefreshSavedViews()
+    {
+        SavedViews.Clear();
+        foreach (var view in (_configuration.SavedViews ?? []).OrderBy(view => view.Name)) SavedViews.Add(view);
     }
 
     private void RefreshRoots()
@@ -495,17 +659,19 @@ public sealed class MainViewModel(
 
         // Counts describe the search results, so they stay meaningful while a filter is active.
         foreach (var filter in Filters)
-            filter.Count = filter.Kind is null ? matching.Count : matching.Count(row => row.Kind == filter.Kind);
+            filter.Count = filter.FavoritesOnly
+                ? matching.Where(row => IsFavoriteRepository(row.Repository.Repo.Path))
+                    .Select(row => row.Repository.Repo.Path).Distinct(StringComparer.OrdinalIgnoreCase).Count()
+                : matching.Count(row => MatchesFilter(row, filter));
 
-        var kind = SelectedFilter?.Kind;
-        var visible = matching.Where(row => kind is null || row.Kind == kind).ToList();
+        var visible = matching.Where(row => SelectedFilter is null || MatchesFilter(row, SelectedFilter)).ToList();
         VisibleCount = visible.Count;
 
         Groups.Clear();
         var groups = visible.GroupBy(row => row.Repository.Repo);
         var orderedGroups = SortGroups(groups);
         foreach (var group in orderedGroups.Select(group => new RepoGroup(group.Key.Name, group.Key.Path, _localizer,
-                     SortRows(group).ToList())))
+                     IsFavoriteRepository(group.Key.Path), SortRows(group).ToList())))
             Groups.Add(group);
 
         if (_selectedItem is not null && !visible.Contains(_selectedItem)) SelectedNode = null;
@@ -524,6 +690,8 @@ public sealed class MainViewModel(
         return
         [
             new(text["FilterAll"], null),
+            new(text["FilterFavorites"], null, false, true),
+            new(text["FilterFlagged"], null, true),
             new(text["KindDirty"], WipKind.Dirty),
             new(text["KindUnpushed"], WipKind.Unpushed),
             new(text["KindStashed"], WipKind.Stashed),
@@ -532,6 +700,11 @@ public sealed class MainViewModel(
             new(text["KindClean"], WipKind.CleanCandidate)
         ];
     }
+
+    private bool MatchesFilter(WipRow row, FilterOption filter) =>
+        (filter.Kind is null || row.Kind == filter.Kind) &&
+        (!filter.FlaggedOnly || row.IsFlagged) &&
+        (!filter.FavoritesOnly || IsFavoriteRepository(row.Repository.Repo.Path));
 
     private static ObservableCollection<SortOption> CreateSortOptions()
     {
@@ -546,19 +719,25 @@ public sealed class MainViewModel(
         ];
     }
 
-    private IOrderedEnumerable<IGrouping<RepoRef, WipRow>> SortGroups(IEnumerable<IGrouping<RepoRef, WipRow>> groups) =>
-        SelectedSortOption?.Value switch
+    private IOrderedEnumerable<IGrouping<RepoRef, WipRow>> SortGroups(IEnumerable<IGrouping<RepoRef, WipRow>> groups)
+    {
+        var favoritesFirst = groups.OrderByDescending(group => IsFavoriteRepository(group.Key.Path));
+        return SelectedSortOption?.Value switch
         {
             WorkQueueSort.LastCommit => IsSortAscending
-                ? groups.OrderBy(group => LatestCommitAt(group))
-                : groups.OrderByDescending(group => LatestCommitAt(group)),
+                ? favoritesFirst.ThenBy(LatestCommitAt)
+                : favoritesFirst.ThenByDescending(LatestCommitAt),
             WorkQueueSort.DirectoryModified => IsSortAscending
-                ? groups.OrderBy(group => group.First().Repository.DirectoryModifiedAt)
-                : groups.OrderByDescending(group => group.First().Repository.DirectoryModifiedAt),
+                ? favoritesFirst.ThenBy(group => group.First().Repository.DirectoryModifiedAt)
+                : favoritesFirst.ThenByDescending(group => group.First().Repository.DirectoryModifiedAt),
             _ => IsSortAscending
-                ? groups.OrderBy(group => group.Key.Name, StringComparer.CurrentCultureIgnoreCase)
-                : groups.OrderByDescending(group => group.Key.Name, StringComparer.CurrentCultureIgnoreCase)
+                ? favoritesFirst.ThenBy(group => group.Key.Name, StringComparer.CurrentCultureIgnoreCase)
+                : favoritesFirst.ThenByDescending(group => group.Key.Name, StringComparer.CurrentCultureIgnoreCase)
         };
+    }
+
+    private bool IsFavoriteRepository(string path) =>
+        (_configuration.FavoriteRepositoryPaths ?? []).Contains(path, StringComparer.OrdinalIgnoreCase);
 
     private static DateTimeOffset? LatestCommitAt(IEnumerable<WipRow> rows) => rows
         .Select(row => row.Repository.Branches.Where(branch => branch.LastCommitAt is not null)
@@ -594,6 +773,15 @@ public sealed class MainViewModel(
     private void OnPropertyChanged([CallerMemberName] string? name = null) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
+    private void NavigateTo(AppPage page)
+    {
+        if (_page == page) return;
+        _page = page;
+        OnPropertyChanged(nameof(IsWorkOpen));
+        OnPropertyChanged(nameof(IsSettingsOpen));
+        OnPropertyChanged(nameof(IsAboutOpen));
+    }
+
     private static string NormalizePath(string value)
     {
         var path = value.StartsWith("~/", StringComparison.Ordinal)
@@ -601,15 +789,27 @@ public sealed class MainViewModel(
             : value;
         return Path.GetFullPath(Environment.ExpandEnvironmentVariables(path));
     }
+
+    private static string? NullIfEmpty(string value) => string.IsNullOrWhiteSpace(value) ? null : value;
+
+    private enum AppPage
+    {
+        Work,
+        Settings,
+        About
+    }
 }
 
 /// <summary>One entry in the sidebar work queue, carrying a live count.</summary>
-public sealed class FilterOption(string label, WipKind? kind) : INotifyPropertyChanged
+public sealed class FilterOption(string label, WipKind? kind, bool flaggedOnly = false, bool favoritesOnly = false)
+    : INotifyPropertyChanged
 {
     private int _count;
     public event PropertyChangedEventHandler? PropertyChanged;
     public string Label { get; } = label;
     public WipKind? Kind { get; } = kind;
+    public bool FlaggedOnly { get; } = flaggedOnly;
+    public bool FavoritesOnly { get; } = favoritesOnly;
 
     public int Count
     {
@@ -639,12 +839,15 @@ public sealed class SortOption(string label, WorkQueueSort value)
 }
 
 /// <summary>The work items of a single repository, shown as one collapsible section.</summary>
-public sealed class RepoGroup(string name, string path, Localizer text, IReadOnlyList<WipRow> items)
+public sealed class RepoGroup(string name, string path, Localizer text, bool isFavorite, IReadOnlyList<WipRow> items)
 {
     public string Name { get; } = name;
     public string Path { get; } = path;
     public string OpenFolderText { get; } = text["OpenFolder"];
     public string ExcludeText { get; } = text["ExcludeRepository"];
+    public bool IsFavorite { get; } = isFavorite;
+    public string FavoriteGlyph => IsFavorite ? "★" : "☆";
+    public string FavoriteToolTip => text[IsFavorite ? "RemoveFavorite" : "AddFavorite"];
     public IReadOnlyList<WipRow> Items { get; } = items;
     public string CountText { get; } = items.Count.ToString(System.Globalization.CultureInfo.CurrentCulture);
 }
@@ -655,6 +858,7 @@ public sealed record WipRow(WipItem Item, Localizer Text, Note? Note)
     public BranchState? Branch => Item.Branch;
     public WipKind Kind => Item.Kind;
     public string Detail => Item.Detail;
+    public string WorktreePath => Item.Worktree?.Path ?? Repository.Worktrees.FirstOrDefault(worktree => worktree.Branch == Branch?.Name)?.Path ?? "—";
     public string RepositoryName => Repository.Repo.Name;
 
     public string ScopeName => Branch?.Name ??
@@ -678,12 +882,44 @@ public sealed record WipRow(WipItem Item, Localizer Text, Note? Note)
     public bool IsStale => Kind == WipKind.StaleUnmerged;
     public bool IsClean => Kind == WipKind.CleanCandidate;
     public bool HasNote => !string.IsNullOrWhiteSpace(Note?.Text);
+    public bool IsFlagged => Note?.IsFlagged ?? false;
+    public bool CanFlag => Branch is not null;
+    public string FlagGlyph => IsFlagged ? "⚑" : "⚐";
+    public string FlagToolTip => Text[IsFlagged ? "RemoveFlag" : "AddFlag"];
     public string NoteText => Note?.Text ?? string.Empty;
     public string OpenFolderText => Text["OpenFolder"];
     public string ExcludeText => Text["ExcludeRepository"];
     public DateTimeOffset? LastCommitAt => Branch?.LastCommitAt;
+    public string ActivityText =>
+        IsStashed
+            ? $"{Text["LatestStash"]}: {FormatDate(Item.Worktree?.LatestStashAt)} · {Text["DiskChanged"]}: {FormatDate(Repository.DirectoryModifiedAt)}"
+            : $"{Text["LastCommit"]}: {FormatDate(LastCommitAt)} · {Text["DiskChanged"]}: {FormatDate(Repository.DirectoryModifiedAt)}";
+
+    public string DiskSizeText => FormatSize(Repository.DiskSizeBytes);
+
+    public string EvidenceText => Kind switch
+    {
+        WipKind.Dirty => $"{Item.Worktree?.Modified ?? 0} modified · {Item.Worktree?.Staged ?? 0} staged · {Item.Worktree?.Untracked ?? 0} untracked",
+        WipKind.Stashed => $"{Item.Worktree?.StashCount ?? 0} stash(es)",
+        WipKind.Unpushed => Branch?.Upstream is null ? "No upstream configured" : $"{Branch.Ahead} commit(s) ahead of {Branch.Upstream}",
+        WipKind.StaleUnmerged => $"Last commit {FormatDate(LastCommitAt)} · not merged into base",
+        WipKind.CleanCandidate => "Merged into a configured base branch",
+        _ => Detail
+    };
 
     public string Summary => $"{Repository.Repo.Name} — {ScopeName}: {Detail}";
+
+    private static string FormatDate(DateTimeOffset? value) => value is { } date
+        ? date.LocalDateTime.ToString("g", System.Globalization.CultureInfo.CurrentCulture)
+        : "—";
+
+    private static string FormatSize(long? bytes) => bytes is not { } size
+        ? "—"
+        : size < 1024L * 1024L
+            ? $"{size / 1024d:F1} KB"
+            : size < 1024L * 1024L * 1024L
+                ? $"{size / (1024d * 1024d):F1} MB"
+                : $"{size / (1024d * 1024d * 1024d):F2} GB";
 }
 
 internal sealed class AsyncCommand(Func<Task> action) : ICommand

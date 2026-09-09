@@ -6,6 +6,7 @@ namespace WorkTreeMemo.Core.Storage;
 
 public sealed class AppDataStore(string? baseDirectory = null)
 {
+    private readonly SemaphoreSlim _writeGate = new(1, 1);
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
@@ -42,6 +43,22 @@ public sealed class AppDataStore(string? baseDirectory = null)
     public async Task<Dictionary<string, Note>> LoadNotesAsync(CancellationToken ct = default) =>
         await ReadAsync<Dictionary<string, Note>>(NotesPath, ct) ?? [];
 
+    public async Task<IReadOnlyList<ActivityEntry>> LoadActivityAsync(CancellationToken ct = default)
+    {
+        if (!File.Exists(ActivityPath)) return [];
+        var entries = new List<ActivityEntry>();
+        await foreach (var line in File.ReadLinesAsync(ActivityPath, ct))
+            try
+            {
+                var entry = JsonSerializer.Deserialize<ActivityEntry>(line, JsonOptions);
+                if (entry is not null) entries.Add(entry);
+            }
+            catch (JsonException)
+            {
+            }
+        return entries;
+    }
+
     public Task SaveNotesAsync(Dictionary<string, Note> notes, CancellationToken ct = default) =>
         WriteAsync(NotesPath, notes, ct);
 
@@ -63,11 +80,20 @@ public sealed class AppDataStore(string? baseDirectory = null)
 
     private async Task WriteAsync<T>(string path, T value, CancellationToken ct)
     {
-        System.IO.Directory.CreateDirectory(DirectoryPath);
-        var temporaryPath = path + ".tmp";
-        await using (var stream = new FileStream(temporaryPath, FileMode.Create, FileAccess.Write, FileShare.None, 4096,
-                         FileOptions.Asynchronous))
-            await JsonSerializer.SerializeAsync(stream, value, JsonOptions, ct);
-        File.Move(temporaryPath, path, true);
+        await _writeGate.WaitAsync(ct);
+        var temporaryPath = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            System.IO.Directory.CreateDirectory(DirectoryPath);
+            await using (var stream = new FileStream(temporaryPath, FileMode.CreateNew, FileAccess.Write, FileShare.None,
+                             4096, FileOptions.Asynchronous))
+                await JsonSerializer.SerializeAsync(stream, value, JsonOptions, ct);
+            File.Move(temporaryPath, path, true);
+        }
+        finally
+        {
+            if (File.Exists(temporaryPath)) File.Delete(temporaryPath);
+            _writeGate.Release();
+        }
     }
 }

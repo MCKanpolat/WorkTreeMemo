@@ -14,14 +14,14 @@
                 <StackPanel Spacing="14">
                     <StackPanel Spacing="3">
                         <TextBlock Text="{Binding Text[ScanRoots]}" Classes="heading" />
-                        <TextBlock Text="{Binding Text[ScanRootsHint]}" Classes="muted" FontSize="12"
+                        <TextBlock Text="{Binding Text[ScanRootsHint]}" Classes="muted" FontSize="13"
                                    TextWrapping="Wrap" />
                     </StackPanel>
 
                     <Border Background="{DynamicResource SurfaceMutedBrush}" CornerRadius="10" Padding="6"
                             MinHeight="120">
                         <Panel>
-                            <TextBlock Text="{Binding Text[NoRoots]}" Classes="faint" FontSize="12"
+                            <TextBlock Text="{Binding Text[NoRoots]}" Classes="faint" FontSize="13"
                                        HorizontalAlignment="Center" VerticalAlignment="Center"
                                        IsVisible="{Binding !HasRoots}" />
                             <ListBox Classes="nav" ItemsSource="{Binding Roots}"
@@ -30,7 +30,7 @@
                                 <ListBox.ItemTemplate>
                                     <DataTemplate DataType="models:ScanRoot">
                                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
-                                            <TextBlock Text="{Binding Path}" Classes="mono" FontSize="12"
+                                            <TextBlock Text="{Binding Path}" Classes="mono" FontSize="13"
                                                        TextTrimming="CharacterEllipsis"
                                                        ToolTip.Tip="{Binding Path}" VerticalAlignment="Center" />
                                             <Border Grid.Column="1" Classes="badge">
@@ -53,7 +53,7 @@
                     </Grid>
 
                     <Grid ColumnDefinitions="*,Auto">
-                        <TextBlock Text="{Binding RootCountText}" Classes="faint" FontSize="12"
+                        <TextBlock Text="{Binding RootCountText}" Classes="faint" FontSize="13"
                                    VerticalAlignment="Center" />
                         <Button Grid.Column="1" Content="{Binding Text[RemoveRoot]}"
                                 Command="{Binding RemoveRootCommand}" />
@@ -67,7 +67,7 @@
                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="20">
                         <StackPanel Spacing="3">
                             <TextBlock Text="{Binding Text[BranchAge]}" Classes="heading" />
-                            <TextBlock Text="{Binding Text[BranchAgeHint]}" Classes="muted" FontSize="12"
+                            <TextBlock Text="{Binding Text[BranchAgeHint]}" Classes="muted" FontSize="13"
                                        TextWrapping="Wrap" />
                         </StackPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8"
@@ -77,8 +77,25 @@
                             <TextBlock Text="{Binding Text[Days]}" Classes="muted" VerticalAlignment="Center" />
                         </StackPanel>
                     </Grid>
-                    <TextBlock Text="{Binding BranchCutoffSummary}" Classes="faint" FontSize="12"
+                    <TextBlock Text="{Binding BranchCutoffSummary}" Classes="faint" FontSize="13"
                                TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- ══ Appearance ═══════════════════════════════════════════ -->
+            <Border Classes="card" Padding="20">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="{Binding Text[SavedViews]}" Classes="heading" />
+                    <ComboBox ItemsSource="{Binding SavedViews}" SelectedItem="{Binding SelectedSavedView}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate DataType="models:SavedView"><TextBlock Text="{Binding Name}" /></DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                        <TextBox Text="{Binding NewSavedViewName}" Watermark="{Binding Text[SavedViewName]}" />
+                        <Button Grid.Column="1" Content="{Binding Text[SaveView]}" Command="{Binding SaveViewCommand}" />
+                        <Button Grid.Column="2" Classes="primary" Content="{Binding Text[ApplyView]}" Command="{Binding ApplyViewCommand}" />
+                    </Grid>
                 </StackPanel>
             </Border>
 
@@ -87,7 +104,7 @@
                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="20">
                     <StackPanel Spacing="3">
                         <TextBlock Text="{Binding Text[Appearance]}" Classes="heading" />
-                        <TextBlock Text="{Binding Text[ThemeHint]}" Classes="muted" FontSize="12"
+                        <TextBlock Text="{Binding Text[ThemeHint]}" Classes="muted" FontSize="13"
                                    TextWrapping="Wrap" />
                     </StackPanel>
                     <Border Grid.Column="1" Classes="segment" VerticalAlignment="Center">
@@ -101,7 +118,7 @@
                 </Grid>
             </Border>
 
-            <TextBlock Text="{Binding Text[LocalGitOnly]}" Classes="faint" FontSize="11" Margin="4,0,0,8"
+            <TextBlock Text="{Binding Text[LocalGitOnly]}" Classes="faint" FontSize="12" Margin="4,0,0,8"
                        TextWrapping="Wrap" />
         </StackPanel>
     </ScrollViewer>

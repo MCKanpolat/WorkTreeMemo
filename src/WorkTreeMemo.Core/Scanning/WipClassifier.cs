@@ -30,6 +30,7 @@ public sealed class WipClassifier
             {
                 var key = NoteKey(repo.Repo.Path, branch.Name);
                 var isParked = notes.TryGetValue(key, out var note) && note.IsParked;
+                if (note?.SnoozedUntil is { } snoozedUntil && snoozedUntil > now) continue;
                 if (isParked) items.Add(new(repo, branch, null, WipKind.Parked, note!.Text));
                 if (!isParked && IsBeyondCutoff(branch, ignoreBranchesOlderThanDays, now)) continue;
                 if (branch.Ahead > 0 || branch.Upstream is null)

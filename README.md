@@ -8,17 +8,25 @@ WorkTreeMemo is a lightweight .NET 10 desktop and command-line app for keeping u
 
 ## Preview
 
+All screenshots below use fictional repositories and sample data.
+
 <p align="center">
   <img src="docs/screenshot-dark.png" alt="WorkTreeMemo desktop workspace in dark mode" width="800" />
 </p>
 
-The desktop workspace groups unfinished work by repository, filters it by type, and lets you save a note for each branch-based item. It supports light and dark appearances.
+The desktop workspace groups unfinished work by repository, shows the most recent commit, working-tree, and stash timestamps, and offers one-click favourites, flags, filters, and expand/collapse controls.
 
 <p align="center">
   <img src="docs/screenshot-light.png" alt="WorkTreeMemo desktop workspace in light mode" width="800" />
 </p>
 
-The same status view is available in the terminal:
+Saved views, scan-root settings, and appearance controls stay local to the machine:
+
+<p align="center">
+  <img src="docs/screenshot-settings.png" alt="WorkTreeMemo settings with saved views" width="800" />
+</p>
+
+The same status and report export capabilities are available in the terminal:
 
 <p align="center">
   <img src="docs/screenshot-cli.png" alt="WorkTreeMemo command-line status output" width="700" />
@@ -27,7 +35,14 @@ The same status view is available in the terminal:
 ## Highlights
 
 - Discover Git repositories under folders you choose.
-- Identify repositories with uncommitted changes, unpushed commits, and recent activity.
+- Identify repositories with uncommitted changes, unpushed commits, stashes, merged branches, and stale branches.
+- Persist a local scan snapshot so reopening the app does not automatically rescan a fresh workspace.
+- Favourite repositories or flag individual branch items, then use the sidebar to focus the queue.
+- See the latest commit, disk-change, and stash dates alongside each item.
+- Record notes, a next step, a local reference, and an optional snooze date for branch work.
+- Save and recall a named combination of search and filters.
+- Review recent scan changes, classification evidence, and scan-health warnings in the inspector.
+- Export the current classified queue as JSON or Markdown.
 - Run continuously from the system tray or start a focused scan on demand.
 - Manage scan roots and intervals from both the GUI and the CLI.
 - Use a modern, colour-aware terminal interface.
@@ -47,9 +62,13 @@ On Windows, extract the archive and run `WorkTreeMemo`. On macOS, extract the ar
 
 ## Desktop app
 
-Run the executable with no arguments to start the desktop app. WorkTreeMemo remains available from the system tray; click its icon to open the workspace. The app scans configured roots while it is running, and **Reindex** discovers repositories again immediately.
+Run the executable with no arguments to start the desktop app. WorkTreeMemo remains available from the system tray; click its icon to open the workspace. The app reopens its saved local snapshot immediately, then scans only when that snapshot has passed the configured interval. **Reindex** always rediscovers repositories immediately.
 
-The sidebar is the work queue: pick a category to filter the list, which is grouped by repository. Selecting an item opens its details on the right, where branch-based items can also carry a note.
+The sidebar is the work queue: pick a category to filter the list, including **My favourites** and **Flagged**. Search, sort, and the **Collapse all** / **Expand all** controls operate on the repository groups. The favourites count is a repository count, so one favourite repository with several rows still counts as one.
+
+Select an item to open its details on the right. Every item shows the evidence behind its classification; branch items can also carry a note, next step, local reference, flag, and snooze date. Stash rows display the most recent stash timestamp. The inspector also summarizes recent changes since the previous scan and any repositories that could not be read.
+
+Use **Settings** to save a named view. A saved view remembers the current search text, category, favourites filter, and flagged filter. It does not copy repository data or contact a remote service.
 
 **Appearance.** On its first launch WorkTreeMemo reads the light or dark setting from your operating system and records the result in `config.json`. From then on that file decides, so the app keeps the appearance you chose even if the system changes. Switch it at any time from the sidebar or from **Settings**, and the choice is written straight back to the configuration.
 
@@ -76,6 +95,10 @@ WorkTreeMemo status
 # Scan existing repositories, or rediscover them from every configured root
 WorkTreeMemo scan
 WorkTreeMemo reindex
+
+# Write the current classified work queue to a local report
+WorkTreeMemo export-json ~/Desktop/worktreememo-report.json
+WorkTreeMemo export-markdown ~/Desktop/worktreememo-report.md
 
 # Manage scan roots
 WorkTreeMemo config roots
@@ -109,3 +132,7 @@ Every push to `main` runs the release workflow. It calculates the semantic versi
 Use `#major`, `#minor`, or `#patch` in a commit message to select the version bump. When no marker is present, the workflow uses a patch release. GitHub automatically generates the release notes shown as **What's New**.
 
 The calculated release version is embedded in the application and displayed in both the desktop UI and CLI.
+
+## License
+
+WorkTreeMemo is available under the [MIT License](LICENSE).

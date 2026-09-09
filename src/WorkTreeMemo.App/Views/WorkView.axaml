@@ -11,13 +11,13 @@
         <Border Classes="card" ClipToBounds="True">
             <Panel>
 
-                <TreeView ItemsSource="{Binding Groups}"
+                <TreeView x:Name="WorkTree" ItemsSource="{Binding Groups}"
                           SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
                           IsVisible="{Binding ShowResults}">
                     <TreeView.DataTemplates>
 
                         <TreeDataTemplate DataType="vm:RepoGroup" ItemsSource="{Binding Items}">
-                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" Margin="0,5">
+                            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10" Margin="0,5">
                                 <Grid.ContextMenu>
                                     <ContextMenu>
                                         <MenuItem Header="{Binding OpenFolderText}" Tag="{Binding Path}"
@@ -26,9 +26,13 @@
                                                   Click="ExcludeRepository" />
                                     </ContextMenu>
                                 </Grid.ContextMenu>
-                                <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold"
+                                <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold"
                                            TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
-                                <Border Grid.Column="1" Classes="badge">
+                                <Button Grid.Column="1" Classes="ghost" Classes.favorite="{Binding IsFavorite}"
+                                        Padding="5,2" FontSize="16"
+                                        Content="{Binding FavoriteGlyph}" ToolTip.Tip="{Binding FavoriteToolTip}"
+                                        Tag="{Binding}" Click="ToggleFavorite" />
+                                <Border Grid.Column="2" Classes="badge">
                                     <TextBlock Text="{Binding CountText}" />
                                 </Border>
                             </Grid>
@@ -54,13 +58,21 @@
                                     <TextBlock Text="{Binding KindLabel}" />
                                 </Border>
                                 <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding ScopeName}" FontSize="13"
+                                    <TextBlock Text="{Binding ScopeName}" FontSize="14"
                                                TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Text="{Binding Detail}" Classes="muted" FontSize="11"
+                                    <TextBlock Text="{Binding Detail}" Classes="muted" FontSize="12"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding ActivityText}" Classes="faint" FontSize="12"
                                                TextTrimming="CharacterEllipsis" />
                                 </StackPanel>
-                                <TextBlock Grid.Column="2" Text="✎" Classes="faint" VerticalAlignment="Center"
-                                           IsVisible="{Binding HasNote}" ToolTip.Tip="{Binding NoteText}" />
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="2"
+                                            VerticalAlignment="Center">
+                                    <Button Classes="ghost" Padding="5,2" FontSize="15" Content="{Binding FlagGlyph}"
+                                            ToolTip.Tip="{Binding FlagToolTip}" Tag="{Binding}"
+                                            IsVisible="{Binding CanFlag}" Click="ToggleFlag" />
+                                    <TextBlock Text="✎" Classes="faint" VerticalAlignment="Center"
+                                               IsVisible="{Binding HasNote}" ToolTip.Tip="{Binding NoteText}" />
+                                </StackPanel>
                             </Grid>
                         </DataTemplate>
 
@@ -107,6 +119,26 @@
                                    IsVisible="{Binding !HasSelection}" />
                         <TextBlock Text="{Binding SelectedDetail}" Classes="muted" TextWrapping="Wrap"
                                    IsVisible="{Binding HasSelection}" />
+                        <StackPanel Spacing="5" IsVisible="{Binding CanTakeNote}">
+                            <TextBlock Text="{Binding Text[NextStep]}" Classes="section" />
+                            <TextBox Text="{Binding NextStepText}" Watermark="{Binding Text[NextStepHint]}" />
+                            <TextBlock Text="{Binding Text[LocalReference]}" Classes="section" />
+                            <TextBox Text="{Binding LocalPathText}" Watermark="{Binding Text[LocalReferenceHint]}" />
+                            <TextBlock Text="{Binding Text[SnoozeUntil]}" Classes="section" />
+                            <TextBox Text="{Binding SnoozeUntilText}" Watermark="YYYY-MM-DD" />
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Button Classes="ghost" Content="{Binding Text[SnoozeTomorrow]}" Command="{Binding SnoozeTomorrowCommand}" />
+                                <Button Classes="ghost" Content="{Binding Text[ClearSnooze]}" Command="{Binding ClearSnoozeCommand}" />
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel Spacing="4" IsVisible="{Binding HasRecentChanges}">
+                            <TextBlock Text="{Binding Text[RecentChanges]}" Classes="section" />
+                            <TextBlock Text="{Binding RecentChangesText}" Classes="faint" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="{Binding Text[ScanHealth]}" Classes="section" />
+                            <TextBlock Text="{Binding ScanHealthText}" Classes="faint" TextWrapping="Wrap" />
+                        </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
 

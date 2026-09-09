@@ -25,10 +25,12 @@ public partial class App : Application
             _services = new ServiceCollection().AddWorkTreeMemo().BuildServiceProvider(validateScopes: true);
             ApplyStoredPreferences(_services.GetRequiredService<AppDataStore>());
             var window = new MainWindow();
+            window.EnablePlacementPersistence(_services.GetRequiredService<AppDataStore>());
             _runtime = ActivatorUtilities.CreateInstance<AppRuntime>(_services, window, desktop);
             desktop.MainWindow = window;
             desktop.Exit += async (_, _) =>
             {
+                await window.SavePlacementAsync();
                 if (_runtime is not null) await _runtime.DisposeAsync();
                 if (_services is not null) await _services.DisposeAsync();
             };

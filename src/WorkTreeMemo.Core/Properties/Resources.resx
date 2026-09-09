@@ -6,17 +6,58 @@
   <data name="LocalGitOnly" xml:space="preserve"><value>Local Git data only; no fetch is performed.</value></data>
   <data name="Filters" xml:space="preserve"><value>Filters</value></data>
   <data name="Details" xml:space="preserve"><value>Details</value></data>
+  <data name="Repository" xml:space="preserve"><value>Repository</value></data>
+  <data name="Worktree" xml:space="preserve"><value>Worktree</value></data>
   <data name="Search" xml:space="preserve"><value>Search repositories and branches</value></data>
   <data name="Note" xml:space="preserve"><value>Note</value></data>
   <data name="Parked" xml:space="preserve"><value>Parked</value></data>
   <data name="SaveNote" xml:space="preserve"><value>Save note</value></data>
+  <data name="NextStep" xml:space="preserve"><value>Next step</value></data>
+  <data name="NextStepHint" xml:space="preserve"><value>What should happen next?</value></data>
+  <data name="LocalReference" xml:space="preserve"><value>Local reference</value></data>
+  <data name="LocalReferenceHint" xml:space="preserve"><value>File or folder path</value></data>
+  <data name="SnoozeUntil" xml:space="preserve"><value>Snooze until</value></data>
+  <data name="SnoozeTomorrow" xml:space="preserve"><value>Tomorrow</value></data>
+  <data name="ClearSnooze" xml:space="preserve"><value>Clear snooze</value></data>
+  <data name="RecentChanges" xml:space="preserve"><value>Recent changes</value></data>
+  <data name="ScanHealth" xml:space="preserve"><value>Scan health</value></data>
+  <data name="ScanHealthGood" xml:space="preserve"><value>All repositories were read successfully.</value></data>
+  <data name="ScanHealthErrors" xml:space="preserve"><value>{0} repository scan error(s): {1}</value></data>
+  <data name="AddFavorite" xml:space="preserve"><value>Add to favorites</value></data>
+  <data name="RemoveFavorite" xml:space="preserve"><value>Remove from favorites</value></data>
+  <data name="AddFlag" xml:space="preserve"><value>Flag for attention</value></data>
+  <data name="RemoveFlag" xml:space="preserve"><value>Remove flag</value></data>
 
   <data name="Tagline" xml:space="preserve"><value>Unfinished work, in view</value></data>
   <data name="WorkQueue" xml:space="preserve"><value>WORK QUEUE</value></data>
   <data name="Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="SavedViews" xml:space="preserve"><value>Saved views</value></data>
+  <data name="SavedViewName" xml:space="preserve"><value>View name</value></data>
+  <data name="SaveView" xml:space="preserve"><value>Save view</value></data>
+  <data name="ApplyView" xml:space="preserve"><value>Apply</value></data>
   <data name="BackToWork" xml:space="preserve"><value>Back to work queue</value></data>
   <data name="ClearSearch" xml:space="preserve"><value>Clear search</value></data>
+  <data name="CollapseAll" xml:space="preserve"><value>Collapse all</value></data>
+  <data name="ExpandAll" xml:space="preserve"><value>Expand all</value></data>
   <data name="Scanning" xml:space="preserve"><value>Scanning…</value></data>
+  <data name="Reindexing" xml:space="preserve"><value>Reindexing…</value></data>
+  <data name="ReadyStatus" xml:space="preserve"><value>Ready — {0} repositories</value></data>
+  <data name="GitRequired" xml:space="preserve"><value>Git CLI is required to scan repositories. {0}</value></data>
+  <data name="GitUnavailable" xml:space="preserve"><value>Git is unavailable.</value></data>
+  <data name="GitUnavailableRestart" xml:space="preserve"><value>Git is unavailable. Install Git and restart WorkTreeMemo.</value></data>
+  <data name="ScanCancelled" xml:space="preserve"><value>Scan cancelled.</value></data>
+  <data name="ScanFailed" xml:space="preserve"><value>Scan failed: {0}</value></data>
+  <data name="RepositoryExcluded" xml:space="preserve"><value>Repository excluded. Reindex to refresh the saved snapshot.</value></data>
+  <data name="FavoriteAdded" xml:space="preserve"><value>Repository added to favorites.</value></data>
+  <data name="FavoriteRemoved" xml:space="preserve"><value>Repository removed from favorites.</value></data>
+  <data name="FlagAdded" xml:space="preserve"><value>Flag added.</value></data>
+  <data name="FlagRemoved" xml:space="preserve"><value>Flag removed.</value></data>
+  <data name="NoteSaved" xml:space="preserve"><value>Note saved.</value></data>
+  <data name="EnterFolderPath" xml:space="preserve"><value>Enter a folder path.</value></data>
+  <data name="FolderDoesNotExist" xml:space="preserve"><value>Folder does not exist.</value></data>
+  <data name="RootAdded" xml:space="preserve"><value>Root added. Run Reindex to discover repositories.</value></data>
+  <data name="RootRemoved" xml:space="preserve"><value>Root removed.</value></data>
+  <data name="UpdateAvailable" xml:space="preserve"><value>Version {0} is available on GitHub.</value></data>
   <data name="SortRepository" xml:space="preserve"><value>Repository</value></data>
   <data name="SortBranch" xml:space="preserve"><value>Branch / worktree</value></data>
   <data name="SortStatus" xml:space="preserve"><value>Status</value></data>
@@ -24,8 +65,13 @@
   <data name="SortDirectoryModified" xml:space="preserve"><value>Folder modified date</value></data>
   <data name="SortAscending" xml:space="preserve"><value>Sort ascending</value></data>
   <data name="SortDescending" xml:space="preserve"><value>Sort descending</value></data>
+  <data name="LastCommit" xml:space="preserve"><value>Last commit</value></data>
+  <data name="LatestStash" xml:space="preserve"><value>Latest stash</value></data>
+  <data name="DiskChanged" xml:space="preserve"><value>Disk change</value></data>
 
   <data name="FilterAll" xml:space="preserve"><value>Everything</value></data>
+  <data name="FilterFavorites" xml:space="preserve"><value>My favorites</value></data>
+  <data name="FilterFlagged" xml:space="preserve"><value>Flagged</value></data>
   <data name="KindDirty" xml:space="preserve"><value>Uncommitted</value></data>
   <data name="KindUnpushed" xml:space="preserve"><value>Unpushed</value></data>
   <data name="KindStashed" xml:space="preserve"><value>Stashed</value></data>
@@ -73,4 +119,16 @@
   <data name="CutoffOff" xml:space="preserve"><value>Every branch is shown, however old.</value></data>
   <data name="CutoffOn" xml:space="preserve"><value>Branches untouched for more than {0} days are hidden.</value></data>
   <data name="Days" xml:space="preserve"><value>days</value></data>
+  <data name="DiskSize" xml:space="preserve"><value>Disk usage</value></data>
+  <data name="About" xml:space="preserve"><value>About</value></data>
+  <data name="Version" xml:space="preserve"><value>Version</value></data>
+  <data name="License" xml:space="preserve"><value>License</value></data>
+  <data name="Author" xml:space="preserve"><value>Author</value></data>
+  <data name="RepositoryUrl" xml:space="preserve"><value>Repository</value></data>
+  <data name="AboutDescription" xml:space="preserve"><value>A local-first desktop companion for finding unfinished Git work. It never fetches from or changes your repositories.</value></data>
+  <data name="Updates" xml:space="preserve"><value>Updates</value></data>
+  <data name="CheckForUpdates" xml:space="preserve"><value>Check for updates</value></data>
+  <data name="CheckingForUpdates" xml:space="preserve"><value>Checking for updates…</value></data>
+  <data name="UpdateCheckFailed" xml:space="preserve"><value>Could not check for updates. Check your internet connection and try again.</value></data>
+  <data name="UpdateIsCurrent" xml:space="preserve"><value>You're up to date.</value></data>
 </root>

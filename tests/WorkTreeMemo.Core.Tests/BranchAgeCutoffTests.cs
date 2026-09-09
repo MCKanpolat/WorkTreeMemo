@@ -61,4 +61,18 @@ public sealed class BranchAgeCutoffTests
     [Fact]
     public void A_cutoff_of_zero_means_no_cutoff()
         => Assert.Contains(WipKind.Unpushed, Classify(RepoWithBranchLastTouched(Now.AddDays(-400)), 0));
+
+    [Fact]
+    public void Snoozed_branch_is_hidden_until_its_due_date()
+    {
+        var notes = new Dictionary<string, Note>
+        {
+            [WipClassifier.NoteKey("/repos/a", "feature/ancient")] = new("", false, Now,
+                SnoozedUntil: Now.AddDays(1))
+        };
+
+        var actual = Classify(RepoWithBranchLastTouched(Now.AddDays(-1)), 0, notes);
+        Assert.DoesNotContain(WipKind.Unpushed, actual);
+        Assert.DoesNotContain(WipKind.StaleUnmerged, actual);
+    }
 }

@@ -5,7 +5,8 @@
         x:Class="WorkTreeMemo.App.Views.MainWindow"
         x:DataType="vm:MainViewModel"
         x:CompileBindings="True"
-        Width="1280" Height="800" MinWidth="980" MinHeight="640"
+        MinWidth="980" MinHeight="640"
+        WindowStartupLocation="CenterScreen"
         Title="WorkTreeMemo">
 
     <Grid ColumnDefinitions="252,*">
@@ -15,13 +16,9 @@
             <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="14,16,14,14">
 
                 <StackPanel Spacing="10" Margin="6,0,6,16">
-                    <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Image Source="avares://WorkTreeMemo/Assets/worktreememo-icon.png"
-                               Width="30" Height="30" />
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="WorkTreeMemo" FontSize="14" FontWeight="SemiBold" />
-                            <TextBlock Text="{Binding Text[Tagline]}" Classes="faint" FontSize="11" />
-                        </StackPanel>
+                    <StackPanel Spacing="3">
+                        <TextBlock Text="WorkTreeMemo" FontSize="16" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding Text[Tagline]}" Classes="faint" FontSize="12" />
                     </StackPanel>
                 </StackPanel>
 
@@ -33,9 +30,9 @@
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="vm:FilterOption">
                             <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Text="{Binding Label}" FontSize="13"
+                                <TextBlock Text="{Binding Label}" FontSize="14"
                                            TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
-                                <TextBlock Grid.Column="1" Text="{Binding Count}" FontSize="12"
+                                <TextBlock Grid.Column="1" Text="{Binding Count}" FontSize="13"
                                            Opacity="0.75" VerticalAlignment="Center" />
                             </Grid>
                         </DataTemplate>
@@ -48,8 +45,16 @@
                             HorizontalContentAlignment="Left"
                             Command="{Binding ShowSettingsCommand}">
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <TextBlock Text="⚙" FontSize="13" VerticalAlignment="Center" />
-                            <TextBlock Text="{Binding Text[Settings]}" FontSize="13" VerticalAlignment="Center" />
+                            <TextBlock Text="⚙" FontSize="14" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding Text[Settings]}" FontSize="14" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="ghost" HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left"
+                            Command="{Binding ShowAboutCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="ⓘ" FontSize="14" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding Text[About]}" FontSize="14" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
                     <TextBlock Text="{Binding VersionText}" Classes="faint" FontSize="11"
@@ -81,8 +86,19 @@
                         <TextBlock Text="{Binding Text[Settings]}" Classes="title" VerticalAlignment="Center" />
                     </StackPanel>
 
+                    <StackPanel Orientation="Horizontal" Spacing="10" IsVisible="{Binding IsAboutOpen}"
+                                VerticalAlignment="Center">
+                        <Button Classes="ghost" Content="←" Command="{Binding ShowWorkCommand}"
+                                ToolTip.Tip="{Binding Text[BackToWork]}" />
+                        <TextBlock Text="{Binding Text[About]}" Classes="title" VerticalAlignment="Center" />
+                    </StackPanel>
+
                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6"
                                 IsVisible="{Binding IsWorkOpen}" VerticalAlignment="Center">
+                        <Button Classes="ghost" Content="{Binding Text[CollapseAll]}"
+                                Click="CollapseAll" />
+                        <Button Classes="ghost" Content="{Binding Text[ExpandAll]}"
+                                Click="ExpandAll" />
                         <Button Content="{Binding SortDirectionToolTip}" MinWidth="122"
                                 ToolTip.Tip="{Binding SortDirectionToolTip}"
                                 Command="{Binding ToggleSortDirectionCommand}" />
@@ -119,17 +135,18 @@
 
             <!-- Pages -->
             <Panel Grid.Row="2" Margin="22,0,22,4">
-                <views:WorkView IsVisible="{Binding IsWorkOpen}" />
+                <views:WorkView x:Name="WorkQueueView" IsVisible="{Binding IsWorkOpen}" />
                 <views:SettingsView IsVisible="{Binding IsSettingsOpen}" />
+                <views:AboutView IsVisible="{Binding IsAboutOpen}" />
             </Panel>
 
             <!-- Status bar -->
             <Border Grid.Row="3" Padding="22,10" BorderThickness="0,1,0,0"
                     BorderBrush="{DynamicResource HairlineBrush}">
                 <Grid ColumnDefinitions="*,Auto">
-                    <TextBlock Text="{Binding StatusText}" Classes="muted" FontSize="12"
+                    <TextBlock Text="{Binding StatusText}" Classes="muted" FontSize="13"
                                TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
-                    <TextBlock Grid.Column="1" Text="{Binding LastScanText}" Classes="faint" FontSize="12"
+                    <TextBlock Grid.Column="1" Text="{Binding LastScanText}" Classes="faint" FontSize="13"
                                VerticalAlignment="Center" />
                 </Grid>
             </Border>

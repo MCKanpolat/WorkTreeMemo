@@ -6,17 +6,58 @@
   <data name="LocalGitOnly" xml:space="preserve"><value>Yalnız yerel Git verisi kullanılır; fetch yapılmaz.</value></data>
   <data name="Filters" xml:space="preserve"><value>Filtreler</value></data>
   <data name="Details" xml:space="preserve"><value>Detaylar</value></data>
+  <data name="Repository" xml:space="preserve"><value>Depo</value></data>
+  <data name="Worktree" xml:space="preserve"><value>Worktree</value></data>
   <data name="Search" xml:space="preserve"><value>Depo ve dal ara</value></data>
   <data name="Note" xml:space="preserve"><value>Not</value></data>
   <data name="Parked" xml:space="preserve"><value>Beklemede</value></data>
   <data name="SaveNote" xml:space="preserve"><value>Notu Kaydet</value></data>
+  <data name="NextStep" xml:space="preserve"><value>Sonraki adım</value></data>
+  <data name="NextStepHint" xml:space="preserve"><value>Sonra ne yapılmalı?</value></data>
+  <data name="LocalReference" xml:space="preserve"><value>Yerel referans</value></data>
+  <data name="LocalReferenceHint" xml:space="preserve"><value>Dosya veya klasör yolu</value></data>
+  <data name="SnoozeUntil" xml:space="preserve"><value>Erteleme tarihi</value></data>
+  <data name="SnoozeTomorrow" xml:space="preserve"><value>Yarın</value></data>
+  <data name="ClearSnooze" xml:space="preserve"><value>Ertelemeyi kaldır</value></data>
+  <data name="RecentChanges" xml:space="preserve"><value>Son değişiklikler</value></data>
+  <data name="ScanHealth" xml:space="preserve"><value>Tarama sağlığı</value></data>
+  <data name="ScanHealthGood" xml:space="preserve"><value>Tüm depolar başarıyla okundu.</value></data>
+  <data name="ScanHealthErrors" xml:space="preserve"><value>{0} depo tarama hatası: {1}</value></data>
+  <data name="AddFavorite" xml:space="preserve"><value>Favorilere ekle</value></data>
+  <data name="RemoveFavorite" xml:space="preserve"><value>Favorilerden çıkar</value></data>
+  <data name="AddFlag" xml:space="preserve"><value>Dikkat için bayrakla</value></data>
+  <data name="RemoveFlag" xml:space="preserve"><value>Bayrağı kaldır</value></data>
 
   <data name="Tagline" xml:space="preserve"><value>Yarım kalan işler göz önünde</value></data>
   <data name="WorkQueue" xml:space="preserve"><value>İŞ KUYRUĞU</value></data>
   <data name="Settings" xml:space="preserve"><value>Ayarlar</value></data>
+  <data name="SavedViews" xml:space="preserve"><value>Kaydedilmiş görünümler</value></data>
+  <data name="SavedViewName" xml:space="preserve"><value>Görünüm adı</value></data>
+  <data name="SaveView" xml:space="preserve"><value>Görünümü kaydet</value></data>
+  <data name="ApplyView" xml:space="preserve"><value>Uygula</value></data>
   <data name="BackToWork" xml:space="preserve"><value>İş kuyruğuna dön</value></data>
   <data name="ClearSearch" xml:space="preserve"><value>Aramayı temizle</value></data>
+  <data name="CollapseAll" xml:space="preserve"><value>Tümünü kapat</value></data>
+  <data name="ExpandAll" xml:space="preserve"><value>Tümünü aç</value></data>
   <data name="Scanning" xml:space="preserve"><value>Taranıyor…</value></data>
+  <data name="Reindexing" xml:space="preserve"><value>Yeniden taranıyor…</value></data>
+  <data name="ReadyStatus" xml:space="preserve"><value>Hazır — {0} depo</value></data>
+  <data name="GitRequired" xml:space="preserve"><value>Depoları taramak için Git CLI gerekir. {0}</value></data>
+  <data name="GitUnavailable" xml:space="preserve"><value>Git kullanılamıyor.</value></data>
+  <data name="GitUnavailableRestart" xml:space="preserve"><value>Git kullanılamıyor. Git'i yükleyip WorkTreeMemo'yu yeniden başlatın.</value></data>
+  <data name="ScanCancelled" xml:space="preserve"><value>Tarama iptal edildi.</value></data>
+  <data name="ScanFailed" xml:space="preserve"><value>Tarama başarısız oldu: {0}</value></data>
+  <data name="RepositoryExcluded" xml:space="preserve"><value>Depo hariç tutuldu. Kayıtlı snapshot'ı yenilemek için yeniden tarayın.</value></data>
+  <data name="FavoriteAdded" xml:space="preserve"><value>Depo favorilere eklendi.</value></data>
+  <data name="FavoriteRemoved" xml:space="preserve"><value>Depo favorilerden çıkarıldı.</value></data>
+  <data name="FlagAdded" xml:space="preserve"><value>Bayrak eklendi.</value></data>
+  <data name="FlagRemoved" xml:space="preserve"><value>Bayrak kaldırıldı.</value></data>
+  <data name="NoteSaved" xml:space="preserve"><value>Not kaydedildi.</value></data>
+  <data name="EnterFolderPath" xml:space="preserve"><value>Bir klasör yolu girin.</value></data>
+  <data name="FolderDoesNotExist" xml:space="preserve"><value>Klasör bulunamadı.</value></data>
+  <data name="RootAdded" xml:space="preserve"><value>Kök eklendi. Depoları bulmak için yeniden tarayın.</value></data>
+  <data name="RootRemoved" xml:space="preserve"><value>Kök kaldırıldı.</value></data>
+  <data name="UpdateAvailable" xml:space="preserve"><value>{0} sürümü GitHub'da mevcut.</value></data>
   <data name="SortRepository" xml:space="preserve"><value>Depo</value></data>
   <data name="SortBranch" xml:space="preserve"><value>Dal / worktree</value></data>
   <data name="SortStatus" xml:space="preserve"><value>Durum</value></data>
@@ -24,8 +65,13 @@
   <data name="SortDirectoryModified" xml:space="preserve"><value>Klasör değişiklik tarihi</value></data>
   <data name="SortAscending" xml:space="preserve"><value>Artan sırala</value></data>
   <data name="SortDescending" xml:space="preserve"><value>Azalan sırala</value></data>
+  <data name="LastCommit" xml:space="preserve"><value>Son commit</value></data>
+  <data name="LatestStash" xml:space="preserve"><value>Son stash</value></data>
+  <data name="DiskChanged" xml:space="preserve"><value>Disk değişimi</value></data>
 
   <data name="FilterAll" xml:space="preserve"><value>Tümü</value></data>
+  <data name="FilterFavorites" xml:space="preserve"><value>Favorilerim</value></data>
+  <data name="FilterFlagged" xml:space="preserve"><value>Bayraklılar</value></data>
   <data name="KindDirty" xml:space="preserve"><value>Commit edilmemiş</value></data>
   <data name="KindUnpushed" xml:space="preserve"><value>Push edilmemiş</value></data>
   <data name="KindStashed" xml:space="preserve"><value>Stash'lenmiş</value></data>
@@ -73,4 +119,16 @@
   <data name="CutoffOff" xml:space="preserve"><value>Yaşı ne olursa olsun her dal gösteriliyor.</value></data>
   <data name="CutoffOn" xml:space="preserve"><value>{0} günden fazla dokunulmamış dallar gizleniyor.</value></data>
   <data name="Days" xml:space="preserve"><value>gün</value></data>
+  <data name="DiskSize" xml:space="preserve"><value>Disk kullanımı</value></data>
+  <data name="About" xml:space="preserve"><value>Hakkında</value></data>
+  <data name="Version" xml:space="preserve"><value>Sürüm</value></data>
+  <data name="License" xml:space="preserve"><value>Lisans</value></data>
+  <data name="Author" xml:space="preserve"><value>Geliştirici</value></data>
+  <data name="RepositoryUrl" xml:space="preserve"><value>Depo</value></data>
+  <data name="AboutDescription" xml:space="preserve"><value>Yarım kalan Git işlerini bulmak için yerel öncelikli masaüstü yardımcısı. Depolarınıza fetch yapmaz veya onları değiştirmez.</value></data>
+  <data name="Updates" xml:space="preserve"><value>Güncellemeler</value></data>
+  <data name="CheckForUpdates" xml:space="preserve"><value>Güncellemeleri kontrol et</value></data>
+  <data name="CheckingForUpdates" xml:space="preserve"><value>Güncellemeler kontrol ediliyor…</value></data>
+  <data name="UpdateCheckFailed" xml:space="preserve"><value>Güncelleme kontrol edilemedi. İnternet bağlantınızı kontrol edip yeniden deneyin.</value></data>
+  <data name="UpdateIsCurrent" xml:space="preserve"><value>Uygulama güncel.</value></data>
 </root>
