@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="src/WorkTreeMemo.Core/WorkTreeMemo.Core.csproj" />
+  <Project Path="src/WorkTreeMemo.App/WorkTreeMemo.App.csproj" />
+  <Project Path="tests/WorkTreeMemo.Core.Tests/WorkTreeMemo.Core.Tests.csproj" />
+</Solution>

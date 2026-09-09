@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>WorkTreeMemo</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../WorkTreeMemo.Core/WorkTreeMemo.Core.csproj" />
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="Avalonia.Themes.Fluent" />
+    <PackageReference Include="Avalonia.Fonts.Inter" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Spectre.Console" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets/worktreememo-icon.png" />
+    <AvaloniaResource Include="Assets/worktreememo-tray.png" />
+  </ItemGroup>
+</Project>

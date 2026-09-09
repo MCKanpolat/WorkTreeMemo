@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Open" xml:space="preserve"><value>Open WorkTreeMemo</value></data>
+  <data name="Reindex" xml:space="preserve"><value>Reindex</value></data>
+  <data name="Quit" xml:space="preserve"><value>Quit</value></data>
+  <data name="LocalGitOnly" xml:space="preserve"><value>Local Git data only; no fetch is performed.</value></data>
+  <data name="Filters" xml:space="preserve"><value>Filters</value></data>
+  <data name="Details" xml:space="preserve"><value>Details</value></data>
+  <data name="Search" xml:space="preserve"><value>Search repositories and branches</value></data>
+  <data name="Note" xml:space="preserve"><value>Note</value></data>
+  <data name="Parked" xml:space="preserve"><value>Parked</value></data>
+  <data name="SaveNote" xml:space="preserve"><value>Save note</value></data>
+
+  <data name="Tagline" xml:space="preserve"><value>Unfinished work, in view</value></data>
+  <data name="WorkQueue" xml:space="preserve"><value>WORK QUEUE</value></data>
+  <data name="Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="BackToWork" xml:space="preserve"><value>Back to work queue</value></data>
+  <data name="ClearSearch" xml:space="preserve"><value>Clear search</value></data>
+  <data name="Scanning" xml:space="preserve"><value>Scanning…</value></data>
+
+  <data name="FilterAll" xml:space="preserve"><value>Everything</value></data>
+  <data name="KindDirty" xml:space="preserve"><value>Uncommitted</value></data>
+  <data name="KindUnpushed" xml:space="preserve"><value>Unpushed</value></data>
+  <data name="KindStashed" xml:space="preserve"><value>Stashed</value></data>
+  <data name="KindStale" xml:space="preserve"><value>Stale branches</value></data>
+  <data name="KindParked" xml:space="preserve"><value>Parked</value></data>
+  <data name="KindClean" xml:space="preserve"><value>Safe to delete</value></data>
+
+  <data name="BadgeDirty" xml:space="preserve"><value>UNCOMMITTED</value></data>
+  <data name="BadgeUnpushed" xml:space="preserve"><value>UNPUSHED</value></data>
+  <data name="BadgeStashed" xml:space="preserve"><value>STASHED</value></data>
+  <data name="BadgeStale" xml:space="preserve"><value>STALE</value></data>
+  <data name="BadgeParked" xml:space="preserve"><value>PARKED</value></data>
+  <data name="BadgeClean" xml:space="preserve"><value>MERGED</value></data>
+
+  <data name="SummaryNotScanned" xml:space="preserve"><value>Nothing scanned yet</value></data>
+  <data name="SummaryCounts" xml:space="preserve"><value>{0} items across {1} repositories</value></data>
+  <data name="LastScanNever" xml:space="preserve"><value>Not scanned yet</value></data>
+  <data name="LastScanPrefix" xml:space="preserve"><value>Last scan</value></data>
+  <data name="RootCount" xml:space="preserve"><value>{0} scan root(s)</value></data>
+
+  <data name="EmptyRootsTitle" xml:space="preserve"><value>Point WorkTreeMemo at your code</value></data>
+  <data name="EmptyRootsBody" xml:space="preserve"><value>Add a folder that holds your Git repositories. WorkTreeMemo reads them locally and never fetches from a remote.</value></data>
+  <data name="EmptyRootsAction" xml:space="preserve"><value>Add a scan root</value></data>
+  <data name="NoMatchesTitle" xml:space="preserve"><value>Nothing here</value></data>
+  <data name="NoMatchesBody" xml:space="preserve"><value>No unfinished work matches this filter. Try another filter, or clear the search.</value></data>
+  <data name="InspectorEmpty" xml:space="preserve"><value>Select an item to see what is waiting in it.</value></data>
+
+  <data name="ScanRoots" xml:space="preserve"><value>Scan roots</value></data>
+  <data name="ScanRootsHint" xml:space="preserve"><value>Folders searched for Git repositories, each to its own depth.</value></data>
+  <data name="FolderPath" xml:space="preserve"><value>Folder path, for example ~/Development</value></data>
+  <data name="ChooseFolder" xml:space="preserve"><value>Choose folder</value></data>
+  <data name="OpenFolder" xml:space="preserve"><value>Open folder</value></data>
+  <data name="Depth" xml:space="preserve"><value>Depth</value></data>
+  <data name="AddRoot" xml:space="preserve"><value>Add root</value></data>
+  <data name="RemoveRoot" xml:space="preserve"><value>Remove selected</value></data>
+  <data name="NoRoots" xml:space="preserve"><value>No scan roots yet.</value></data>
+
+  <data name="Appearance" xml:space="preserve"><value>Appearance</value></data>
+  <data name="ThemeLight" xml:space="preserve"><value>Light</value></data>
+  <data name="ThemeDark" xml:space="preserve"><value>Dark</value></data>
+  <data name="ThemeHint" xml:space="preserve"><value>Matched to your system on first launch. Your choice here is remembered.</value></data>
+  <data name="BranchAge" xml:space="preserve"><value>Branch age</value></data>
+  <data name="BranchAgeHint" xml:space="preserve"><value>Hide branches that have not been touched for a long time. Uncommitted work and anything you have parked always stays in view.</value></data>
+  <data name="CutoffOff" xml:space="preserve"><value>Every branch is shown, however old.</value></data>
+  <data name="CutoffOn" xml:space="preserve"><value>Branches untouched for more than {0} days are hidden.</value></data>
+  <data name="Days" xml:space="preserve"><value>days</value></data>
+</root>

@@ -1,0 +1,120 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:WorkTreeMemo.App.ViewModels"
+        xmlns:views="clr-namespace:WorkTreeMemo.App.Views"
+        x:Class="WorkTreeMemo.App.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        x:CompileBindings="True"
+        Width="1280" Height="800" MinWidth="980" MinHeight="640"
+        Title="WorkTreeMemo">
+
+    <Grid ColumnDefinitions="252,*">
+
+        <!-- ══ Sidebar ══════════════════════════════════════════════════ -->
+        <Border Classes="sidebar">
+            <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="14,16,14,14">
+
+                <StackPanel Spacing="10" Margin="6,0,6,16">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Image Source="avares://WorkTreeMemo/Assets/worktreememo-icon.png"
+                               Width="30" Height="30" />
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="WorkTreeMemo" FontSize="14" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding Text[Tagline]}" Classes="faint" FontSize="11" />
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+
+                <TextBlock Grid.Row="1" Text="{Binding Text[WorkQueue]}" Classes="section" Margin="10,0,10,6" />
+
+                <ListBox Grid.Row="2" Classes="nav"
+                         ItemsSource="{Binding Filters}"
+                         SelectedItem="{Binding SelectedFilter}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:FilterOption">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="{Binding Label}" FontSize="13"
+                                           TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" Text="{Binding Count}" FontSize="12"
+                                           Opacity="0.75" VerticalAlignment="Center" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <StackPanel Grid.Row="3" Spacing="12" Margin="0,14,0,0">
+                    <Rectangle Classes="rule" />
+                    <Button Classes="ghost" HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left"
+                            Command="{Binding ShowSettingsCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="⚙" FontSize="13" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding Text[Settings]}" FontSize="13" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <TextBlock Text="{Binding VersionText}" Classes="faint" FontSize="11"
+                               HorizontalAlignment="Center" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ══ Content ══════════════════════════════════════════════════ -->
+        <Grid Grid.Column="1" RowDefinitions="Auto,Auto,*,Auto">
+
+            <!-- Toolbar -->
+            <Border Background="{DynamicResource CanvasBrush}" Padding="22,16,22,12">
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="14">
+
+                    <Grid IsVisible="{Binding IsWorkOpen}" ColumnDefinitions="*,Auto" MaxWidth="440"
+                          HorizontalAlignment="Left">
+                        <TextBox Watermark="{Binding Text[Search]}" Text="{Binding SearchText}" />
+                        <Button Grid.Column="1" Classes="ghost" Content="✕" Margin="4,0,0,0"
+                                ToolTip.Tip="{Binding Text[ClearSearch]}"
+                                IsVisible="{Binding HasSearchText}"
+                                Command="{Binding ClearSearchCommand}" />
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" Spacing="10" IsVisible="{Binding IsSettingsOpen}"
+                                VerticalAlignment="Center">
+                        <Button Classes="ghost" Content="←" Command="{Binding ShowWorkCommand}"
+                                ToolTip.Tip="{Binding Text[BackToWork]}" />
+                        <TextBlock Text="{Binding Text[Settings]}" Classes="title" VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <TextBlock Grid.Column="1" Text="{Binding Text[Scanning]}" Classes="muted"
+                               VerticalAlignment="Center" IsVisible="{Binding IsBusy}" />
+
+                    <Button Grid.Column="2" Classes="primary" Content="{Binding Text[Reindex]}"
+                            Command="{Binding ReindexCommand}" />
+                </Grid>
+            </Border>
+
+            <!-- Banners -->
+            <StackPanel Grid.Row="1" Spacing="8" Margin="22,0,22,10">
+                <Border Classes="banner info" IsVisible="{Binding IsUpdateAvailable}">
+                    <TextBlock Text="{Binding UpdateMessage}" TextWrapping="Wrap" />
+                </Border>
+                <Border Classes="banner danger" IsVisible="{Binding IsGitUnavailable}">
+                    <TextBlock Text="{Binding GitWarningText}" TextWrapping="Wrap" />
+                </Border>
+            </StackPanel>
+
+            <!-- Pages -->
+            <Panel Grid.Row="2" Margin="22,0,22,4">
+                <views:WorkView IsVisible="{Binding IsWorkOpen}" />
+                <views:SettingsView IsVisible="{Binding IsSettingsOpen}" />
+            </Panel>
+
+            <!-- Status bar -->
+            <Border Grid.Row="3" Padding="22,10" BorderThickness="0,1,0,0"
+                    BorderBrush="{DynamicResource HairlineBrush}">
+                <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Text="{Binding StatusText}" Classes="muted" FontSize="12"
+                               TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1" Text="{Binding LastScanText}" Classes="faint" FontSize="12"
+                               VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

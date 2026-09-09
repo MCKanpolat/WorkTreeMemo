@@ -1,0 +1,68 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: Fallback bump when no #major/#minor/#patch commit marker exists
+        required: true
+        default: patch
+        type: choice
+        options: [patch, minor, major]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      - name: Calculate semantic version
+        id: versioning
+        uses: MCKanpolat/auto-semver-action@1.0.12
+        with:
+          releaseType: ${{ inputs.release_type || 'patch' }}
+          incrementPerCommit: false
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build release assets
+        env:
+          VERSION: ${{ steps.versioning.outputs.version }}
+        run: |
+          dotnet restore WorkTreeMemo.slnx
+          dotnet test tests/WorkTreeMemo.Core.Tests/WorkTreeMemo.Core.Tests.csproj --no-restore --configuration Release
+          dotnet publish src/WorkTreeMemo.App/WorkTreeMemo.App.csproj --configuration Release --runtime win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=false -p:Version="$VERSION" -p:ContinuousIntegrationBuild=true --output artifacts/release/WorkTreeMemo-win-x64
+          dotnet publish src/WorkTreeMemo.App/WorkTreeMemo.App.csproj --configuration Release --runtime osx-arm64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=false -p:Version="$VERSION" -p:ContinuousIntegrationBuild=true --output artifacts/publish/WorkTreeMemo-osx-arm64
+          dotnet publish src/WorkTreeMemo.App/WorkTreeMemo.App.csproj --configuration Release --runtime osx-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=false -p:Version="$VERSION" -p:ContinuousIntegrationBuild=true --output artifacts/publish/WorkTreeMemo-osx-x64
+
+          package_macos_app() {
+            local publish_directory="$1"
+            local archive_name="$2"
+            local bundle_directory="artifacts/macos/WorkTreeMemo.app"
+            rm -rf "$bundle_directory"
+            mkdir -p "$bundle_directory/Contents/MacOS" "$bundle_directory/Contents/Resources"
+            cp -R "$publish_directory"/. "$bundle_directory/Contents/MacOS/"
+            cp src/WorkTreeMemo.App/Assets/worktreememo-icon.icns "$bundle_directory/Contents/Resources/"
+            sed "s/__VERSION__/$VERSION/g" packaging/macos/Info.plist > "$bundle_directory/Contents/Info.plist"
+            (cd artifacts/macos && zip -r "../release/$archive_name" WorkTreeMemo.app)
+          }
+
+          package_macos_app artifacts/publish/WorkTreeMemo-osx-arm64 "WorkTreeMemo-${VERSION}-osx-arm64.zip"
+          package_macos_app artifacts/publish/WorkTreeMemo-osx-x64 "WorkTreeMemo-${VERSION}-osx-x64.zip"
+          cd artifacts/release
+          zip -r "WorkTreeMemo-${VERSION}-win-x64.zip" WorkTreeMemo-win-x64
+      - name: Publish GitHub release and What's New
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.versioning.outputs.version }}
+          name: WorkTreeMemo v${{ steps.versioning.outputs.version }}
+          generate_release_notes: true
+          make_latest: true
+          files: artifacts/release/*.zip

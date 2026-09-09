@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Open" xml:space="preserve"><value>WorkTreeMemo'yu Aç</value></data>
+  <data name="Reindex" xml:space="preserve"><value>Yeniden Tara</value></data>
+  <data name="Quit" xml:space="preserve"><value>Çıkış</value></data>
+  <data name="LocalGitOnly" xml:space="preserve"><value>Yalnız yerel Git verisi kullanılır; fetch yapılmaz.</value></data>
+  <data name="Filters" xml:space="preserve"><value>Filtreler</value></data>
+  <data name="Details" xml:space="preserve"><value>Detaylar</value></data>
+  <data name="Search" xml:space="preserve"><value>Depo ve dal ara</value></data>
+  <data name="Note" xml:space="preserve"><value>Not</value></data>
+  <data name="Parked" xml:space="preserve"><value>Beklemede</value></data>
+  <data name="SaveNote" xml:space="preserve"><value>Notu Kaydet</value></data>
+
+  <data name="Tagline" xml:space="preserve"><value>Yarım kalan işler göz önünde</value></data>
+  <data name="WorkQueue" xml:space="preserve"><value>İŞ KUYRUĞU</value></data>
+  <data name="Settings" xml:space="preserve"><value>Ayarlar</value></data>
+  <data name="BackToWork" xml:space="preserve"><value>İş kuyruğuna dön</value></data>
+  <data name="ClearSearch" xml:space="preserve"><value>Aramayı temizle</value></data>
+  <data name="Scanning" xml:space="preserve"><value>Taranıyor…</value></data>
+
+  <data name="FilterAll" xml:space="preserve"><value>Tümü</value></data>
+  <data name="KindDirty" xml:space="preserve"><value>Commit edilmemiş</value></data>
+  <data name="KindUnpushed" xml:space="preserve"><value>Push edilmemiş</value></data>
+  <data name="KindStashed" xml:space="preserve"><value>Stash'lenmiş</value></data>
+  <data name="KindStale" xml:space="preserve"><value>Bayat dallar</value></data>
+  <data name="KindParked" xml:space="preserve"><value>Beklemede</value></data>
+  <data name="KindClean" xml:space="preserve"><value>Silinebilir</value></data>
+
+  <data name="BadgeDirty" xml:space="preserve"><value>COMMIT YOK</value></data>
+  <data name="BadgeUnpushed" xml:space="preserve"><value>PUSH YOK</value></data>
+  <data name="BadgeStashed" xml:space="preserve"><value>STASH</value></data>
+  <data name="BadgeStale" xml:space="preserve"><value>BAYAT</value></data>
+  <data name="BadgeParked" xml:space="preserve"><value>BEKLEMEDE</value></data>
+  <data name="BadgeClean" xml:space="preserve"><value>BİRLEŞTİ</value></data>
+
+  <data name="SummaryNotScanned" xml:space="preserve"><value>Henüz tarama yapılmadı</value></data>
+  <data name="SummaryCounts" xml:space="preserve"><value>{1} depoda {0} kayıt</value></data>
+  <data name="LastScanNever" xml:space="preserve"><value>Henüz taranmadı</value></data>
+  <data name="LastScanPrefix" xml:space="preserve"><value>Son tarama</value></data>
+  <data name="RootCount" xml:space="preserve"><value>{0} tarama kökü</value></data>
+
+  <data name="EmptyRootsTitle" xml:space="preserve"><value>WorkTreeMemo'yu kodunuza yönlendirin</value></data>
+  <data name="EmptyRootsBody" xml:space="preserve"><value>Git depolarınızı içeren bir klasör ekleyin. WorkTreeMemo bunları yalnızca yerelden okur, uzak sunucuya bağlanmaz.</value></data>
+  <data name="EmptyRootsAction" xml:space="preserve"><value>Tarama kökü ekle</value></data>
+  <data name="NoMatchesTitle" xml:space="preserve"><value>Burada bir şey yok</value></data>
+  <data name="NoMatchesBody" xml:space="preserve"><value>Bu filtreye uyan yarım iş yok. Başka bir filtre deneyin veya aramayı temizleyin.</value></data>
+  <data name="InspectorEmpty" xml:space="preserve"><value>Detayını görmek için bir kayıt seçin.</value></data>
+
+  <data name="ScanRoots" xml:space="preserve"><value>Tarama kökleri</value></data>
+  <data name="ScanRootsHint" xml:space="preserve"><value>Git depoları için taranan klasörler, her biri kendi derinliğiyle.</value></data>
+  <data name="FolderPath" xml:space="preserve"><value>Klasör yolu, örneğin ~/Development</value></data>
+  <data name="ChooseFolder" xml:space="preserve"><value>Klasör seç</value></data>
+  <data name="OpenFolder" xml:space="preserve"><value>Klasörü aç</value></data>
+  <data name="Depth" xml:space="preserve"><value>Derinlik</value></data>
+  <data name="AddRoot" xml:space="preserve"><value>Kök ekle</value></data>
+  <data name="RemoveRoot" xml:space="preserve"><value>Seçileni kaldır</value></data>
+  <data name="NoRoots" xml:space="preserve"><value>Henüz tarama kökü yok.</value></data>
+
+  <data name="Appearance" xml:space="preserve"><value>Görünüm</value></data>
+  <data name="ThemeLight" xml:space="preserve"><value>Açık</value></data>
+  <data name="ThemeDark" xml:space="preserve"><value>Koyu</value></data>
+  <data name="ThemeHint" xml:space="preserve"><value>İlk açılışta sisteminize göre seçilir. Buradaki tercihiniz hatırlanır.</value></data>
+  <data name="BranchAge" xml:space="preserve"><value>Dal yaşı</value></data>
+  <data name="BranchAgeHint" xml:space="preserve"><value>Uzun süredir dokunulmamış dalları gizle. Commit edilmemiş işler ve beklemeye aldıklarınız her zaman görünür kalır.</value></data>
+  <data name="CutoffOff" xml:space="preserve"><value>Yaşı ne olursa olsun her dal gösteriliyor.</value></data>
+  <data name="CutoffOn" xml:space="preserve"><value>{0} günden fazla dokunulmamış dallar gizleniyor.</value></data>
+  <data name="Days" xml:space="preserve"><value>gün</value></data>
+</root>

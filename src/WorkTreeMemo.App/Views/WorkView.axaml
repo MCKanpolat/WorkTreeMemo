@@ -1,0 +1,121 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:WorkTreeMemo.App.ViewModels"
+             x:Class="WorkTreeMemo.App.Views.WorkView"
+             x:DataType="vm:MainViewModel"
+             x:CompileBindings="True">
+
+    <Grid ColumnDefinitions="*,344" ColumnSpacing="16">
+
+        <!-- ══ Work items, grouped by repository ════════════════════════ -->
+        <Border Classes="card" ClipToBounds="True">
+            <Panel>
+
+                <TreeView ItemsSource="{Binding Groups}"
+                          SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
+                          IsVisible="{Binding ShowResults}">
+                    <TreeView.DataTemplates>
+
+                        <TreeDataTemplate DataType="vm:RepoGroup" ItemsSource="{Binding Items}">
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" Margin="0,5">
+                                <Grid.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="{Binding OpenFolderText}" Tag="{Binding Path}"
+                                                  Click="OpenFolder" />
+                                    </ContextMenu>
+                                </Grid.ContextMenu>
+                                <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold"
+                                           TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                <Border Grid.Column="1" Classes="badge">
+                                    <TextBlock Text="{Binding CountText}" />
+                                </Border>
+                            </Grid>
+                        </TreeDataTemplate>
+
+                        <DataTemplate DataType="vm:WipRow">
+                            <Grid ColumnDefinitions="106,*,Auto" ColumnSpacing="10" Margin="0,4">
+                                <Grid.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="{Binding OpenFolderText}"
+                                                  Tag="{Binding Repository.Repo.Path}" Click="OpenFolder" />
+                                    </ContextMenu>
+                                </Grid.ContextMenu>
+                                <Border Classes="badge"
+                                        HorizontalAlignment="Left"
+                                        Classes.dirty="{Binding IsDirty}"
+                                        Classes.unpushed="{Binding IsUnpushed}"
+                                        Classes.stashed="{Binding IsStashed}"
+                                        Classes.stale="{Binding IsStale}"
+                                        Classes.clean="{Binding IsClean}">
+                                    <TextBlock Text="{Binding KindLabel}" />
+                                </Border>
+                                <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding ScopeName}" FontSize="13"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding Detail}" Classes="muted" FontSize="11"
+                                               TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
+                                <TextBlock Grid.Column="2" Text="✎" Classes="faint" VerticalAlignment="Center"
+                                           IsVisible="{Binding HasNote}" ToolTip.Tip="{Binding NoteText}" />
+                            </Grid>
+                        </DataTemplate>
+
+                    </TreeView.DataTemplates>
+                </TreeView>
+
+                <!-- No scan roots configured yet -->
+                <StackPanel IsVisible="{Binding ShowRootsInvitation}" Spacing="12" MaxWidth="380"
+                            HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Text[EmptyRootsTitle]}" Classes="heading"
+                               HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding Text[EmptyRootsBody]}" Classes="muted" TextWrapping="Wrap"
+                               TextAlignment="Center" />
+                    <Button Classes="primary" Content="{Binding Text[EmptyRootsAction]}"
+                            HorizontalAlignment="Center" Command="{Binding ShowSettingsCommand}" />
+                </StackPanel>
+
+                <!-- Roots exist, but this filter or search matched nothing -->
+                <StackPanel IsVisible="{Binding ShowNoMatches}" Spacing="10" MaxWidth="380"
+                            HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Text[NoMatchesTitle]}" Classes="heading"
+                               HorizontalAlignment="Center" />
+                    <TextBlock Text="{Binding Text[NoMatchesBody]}" Classes="muted" TextWrapping="Wrap"
+                               TextAlignment="Center" />
+                </StackPanel>
+            </Panel>
+        </Border>
+
+        <!-- ══ Inspector ════════════════════════════════════════════════ -->
+        <Border Grid.Column="1" Classes="card" Padding="18">
+            <Grid RowDefinitions="Auto,*,Auto" RowSpacing="14">
+
+                <StackPanel Spacing="2">
+                    <TextBlock Text="{Binding Text[Details]}" Classes="section" />
+                    <TextBlock Text="{Binding SelectedItem.RepositoryName, FallbackValue=''}" Classes="heading"
+                               TextTrimming="CharacterEllipsis" IsVisible="{Binding HasSelection}" />
+                    <TextBlock Text="{Binding SelectedItem.ScopeName, FallbackValue=''}" Classes="mono"
+                               TextTrimming="CharacterEllipsis" IsVisible="{Binding HasSelection}" />
+                </StackPanel>
+
+                <ScrollViewer Grid.Row="1">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="{Binding Text[InspectorEmpty]}" Classes="muted" TextWrapping="Wrap"
+                                   IsVisible="{Binding !HasSelection}" />
+                        <TextBlock Text="{Binding SelectedDetail}" Classes="muted" TextWrapping="Wrap"
+                                   IsVisible="{Binding HasSelection}" />
+                    </StackPanel>
+                </ScrollViewer>
+
+                <StackPanel Grid.Row="2" Spacing="9" IsVisible="{Binding CanTakeNote}">
+                    <Rectangle Classes="rule" />
+                    <TextBlock Text="{Binding Text[Note]}" Classes="section" />
+                    <TextBox Text="{Binding NoteText}" AcceptsReturn="True" Height="96" TextWrapping="Wrap" />
+                    <CheckBox Content="{Binding Text[Parked]}" IsChecked="{Binding IsParked}" />
+                    <Button Classes="primary" Content="{Binding Text[SaveNote]}"
+                            Command="{Binding SaveNoteCommand}"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

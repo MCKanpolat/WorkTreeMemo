@@ -1,0 +1,103 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--
+        Every colour the interface uses lives here, once per theme variant.
+        Views reference these with DynamicResource so switching the variant
+        at run time repaints the window without recreating it.
+    -->
+    <ResourceDictionary.ThemeDictionaries>
+
+        <ResourceDictionary x:Key="Light">
+            <!-- Structure -->
+            <SolidColorBrush x:Key="CanvasBrush" Color="#F4F5F8" />
+            <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="SurfaceMutedBrush" Color="#F1F3F7" />
+            <SolidColorBrush x:Key="SurfaceHoverBrush" Color="#ECEFF4" />
+            <SolidColorBrush x:Key="SidebarBrush" Color="#FBFCFD" />
+            <SolidColorBrush x:Key="HairlineBrush" Color="#E4E7EC" />
+            <SolidColorBrush x:Key="HairlineStrongBrush" Color="#D3D8E0" />
+
+            <!-- Type -->
+            <SolidColorBrush x:Key="TextBrush" Color="#101828" />
+            <SolidColorBrush x:Key="TextMutedBrush" Color="#667085" />
+            <SolidColorBrush x:Key="TextFaintBrush" Color="#98A2B3" />
+
+            <!-- Accent -->
+            <SolidColorBrush x:Key="AccentBrush" Color="#1F6FEB" />
+            <SolidColorBrush x:Key="AccentHoverBrush" Color="#1A5FD0" />
+            <SolidColorBrush x:Key="AccentPressedBrush" Color="#164FAF" />
+            <SolidColorBrush x:Key="OnAccentBrush" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="AccentSoftBrush" Color="#E7F0FE" />
+            <SolidColorBrush x:Key="OnAccentSoftBrush" Color="#1A5FD0" />
+
+            <!-- Banners -->
+            <SolidColorBrush x:Key="InfoSoftBrush" Color="#EFF6FF" />
+            <SolidColorBrush x:Key="InfoLineBrush" Color="#BFDBFE" />
+            <SolidColorBrush x:Key="OnInfoSoftBrush" Color="#1E40AF" />
+            <SolidColorBrush x:Key="DangerSoftBrush" Color="#FEF3F2" />
+            <SolidColorBrush x:Key="DangerLineBrush" Color="#FECDCA" />
+            <SolidColorBrush x:Key="OnDangerSoftBrush" Color="#B42318" />
+
+            <!-- Work-item kinds -->
+            <SolidColorBrush x:Key="DirtySoftBrush" Color="#FEF0C7" />
+            <SolidColorBrush x:Key="OnDirtySoftBrush" Color="#93370D" />
+            <SolidColorBrush x:Key="UnpushedSoftBrush" Color="#DBEAFE" />
+            <SolidColorBrush x:Key="OnUnpushedSoftBrush" Color="#1D4ED8" />
+            <SolidColorBrush x:Key="StashedSoftBrush" Color="#EDE9FE" />
+            <SolidColorBrush x:Key="OnStashedSoftBrush" Color="#6D28D9" />
+            <SolidColorBrush x:Key="StaleSoftBrush" Color="#FFE4E8" />
+            <SolidColorBrush x:Key="OnStaleSoftBrush" Color="#BE123C" />
+            <SolidColorBrush x:Key="ParkedSoftBrush" Color="#E7EAEE" />
+            <SolidColorBrush x:Key="OnParkedSoftBrush" Color="#4B5563" />
+            <SolidColorBrush x:Key="CleanSoftBrush" Color="#D1FADF" />
+            <SolidColorBrush x:Key="OnCleanSoftBrush" Color="#047857" />
+        </ResourceDictionary>
+
+        <ResourceDictionary x:Key="Dark">
+            <!-- Structure -->
+            <SolidColorBrush x:Key="CanvasBrush" Color="#0B0D12" />
+            <SolidColorBrush x:Key="SurfaceBrush" Color="#141821" />
+            <SolidColorBrush x:Key="SurfaceMutedBrush" Color="#1B1F2A" />
+            <SolidColorBrush x:Key="SurfaceHoverBrush" Color="#222736" />
+            <SolidColorBrush x:Key="SidebarBrush" Color="#0F131A" />
+            <SolidColorBrush x:Key="HairlineBrush" Color="#252A36" />
+            <SolidColorBrush x:Key="HairlineStrongBrush" Color="#333A49" />
+
+            <!-- Type -->
+            <SolidColorBrush x:Key="TextBrush" Color="#E8EBF1" />
+            <SolidColorBrush x:Key="TextMutedBrush" Color="#96A0B2" />
+            <SolidColorBrush x:Key="TextFaintBrush" Color="#6B7488" />
+
+            <!-- Accent -->
+            <SolidColorBrush x:Key="AccentBrush" Color="#3B8DF5" />
+            <SolidColorBrush x:Key="AccentHoverBrush" Color="#5AA1FF" />
+            <SolidColorBrush x:Key="AccentPressedBrush" Color="#77B2FF" />
+            <SolidColorBrush x:Key="OnAccentBrush" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="AccentSoftBrush" Color="#12233D" />
+            <SolidColorBrush x:Key="OnAccentSoftBrush" Color="#8CBEFF" />
+
+            <!-- Banners -->
+            <SolidColorBrush x:Key="InfoSoftBrush" Color="#101F38" />
+            <SolidColorBrush x:Key="InfoLineBrush" Color="#1E3A6B" />
+            <SolidColorBrush x:Key="OnInfoSoftBrush" Color="#93C5FD" />
+            <SolidColorBrush x:Key="DangerSoftBrush" Color="#2A1315" />
+            <SolidColorBrush x:Key="DangerLineBrush" Color="#4C1D22" />
+            <SolidColorBrush x:Key="OnDangerSoftBrush" Color="#FCA5A5" />
+
+            <!-- Work-item kinds -->
+            <SolidColorBrush x:Key="DirtySoftBrush" Color="#382709" />
+            <SolidColorBrush x:Key="OnDirtySoftBrush" Color="#FBBF24" />
+            <SolidColorBrush x:Key="UnpushedSoftBrush" Color="#11223D" />
+            <SolidColorBrush x:Key="OnUnpushedSoftBrush" Color="#7FB1F8" />
+            <SolidColorBrush x:Key="StashedSoftBrush" Color="#231B40" />
+            <SolidColorBrush x:Key="OnStashedSoftBrush" Color="#C4B5FD" />
+            <SolidColorBrush x:Key="StaleSoftBrush" Color="#3A1220" />
+            <SolidColorBrush x:Key="OnStaleSoftBrush" Color="#FDA4AF" />
+            <SolidColorBrush x:Key="ParkedSoftBrush" Color="#242835" />
+            <SolidColorBrush x:Key="OnParkedSoftBrush" Color="#A3ACBD" />
+            <SolidColorBrush x:Key="CleanSoftBrush" Color="#06281D" />
+            <SolidColorBrush x:Key="OnCleanSoftBrush" Color="#6EE7B7" />
+        </ResourceDictionary>
+
+    </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>
