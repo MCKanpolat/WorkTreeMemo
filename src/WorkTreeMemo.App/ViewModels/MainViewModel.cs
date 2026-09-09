@@ -36,7 +36,9 @@ public sealed class MainViewModel(
     private bool _isGitAvailable = true;
     private bool _isUpdateAvailable;
     private bool _isSettingsOpen;
+    private bool _isSortAscending = true;
     private FilterOption? _selectedFilter;
+    private SortOption? _selectedSortOption;
     private ScanRoot? _selectedRoot;
     private object? _selectedNode;
     private WipRow? _selectedItem;
@@ -48,6 +50,7 @@ public sealed class MainViewModel(
     private ICommand? _showWorkCommand;
     private ICommand? _showSettingsCommand;
     private ICommand? _clearSearchCommand;
+    private ICommand? _toggleSortDirectionCommand;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -73,6 +76,8 @@ public sealed class MainViewModel(
     public ICommand ShowWorkCommand => _showWorkCommand ??= new RelayCommand(() => IsSettingsOpen = false);
     public ICommand ShowSettingsCommand => _showSettingsCommand ??= new RelayCommand(() => IsSettingsOpen = true);
     public ICommand ClearSearchCommand => _clearSearchCommand ??= new RelayCommand(() => SearchText = string.Empty);
+    public ICommand ToggleSortDirectionCommand => _toggleSortDirectionCommand ??= new RelayCommand(() =>
+        IsSortAscending = !IsSortAscending);
 
     // ── Appearance ──────────────────────────────────────────────────────
 
@@ -166,6 +171,7 @@ public sealed class MainViewModel(
     // ── Work queue ──────────────────────────────────────────────────────
 
     public ObservableCollection<FilterOption> Filters { get; } = CreateFilters();
+    public ObservableCollection<SortOption> SortOptions { get; } = CreateSortOptions();
     public ObservableCollection<RepoGroup> Groups { get; } = [];
     public ObservableCollection<ScanRoot> Roots { get; } = [];
 
@@ -189,6 +195,32 @@ public sealed class MainViewModel(
             RefreshItems();
         }
     }
+
+    public SortOption? SelectedSortOption
+    {
+        get => _selectedSortOption ??= SortOptions[0];
+        set
+        {
+            if (value is not null && Set(ref _selectedSortOption, value)) RefreshItems();
+        }
+    }
+
+    public bool IsSortAscending
+    {
+        get => _isSortAscending;
+        set
+        {
+            if (Set(ref _isSortAscending, value))
+            {
+                OnPropertyChanged(nameof(SortDirectionGlyph));
+                OnPropertyChanged(nameof(SortDirectionToolTip));
+                RefreshItems();
+            }
+        }
+    }
+
+    public string SortDirectionGlyph => IsSortAscending ? "↑" : "↓";
+    public string SortDirectionToolTip => IsSortAscending ? _localizer["SortAscending"] : _localizer["SortDescending"];
 
     public string SearchText
     {
@@ -366,6 +398,17 @@ public sealed class MainViewModel(
         }
     }
 
+    public async Task ExcludeRepositoryAsync(string path)
+    {
+        var normalizedPath = Path.GetFullPath(path);
+        var excludedPaths = (_configuration.ExcludedRepositoryPaths ?? [])
+            .Append(normalizedPath).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        _configuration = _configuration with { ExcludedRepositoryPaths = excludedPaths };
+        await store.SaveConfigurationAsync(_configuration);
+        RefreshItems();
+        StatusText = "Repository excluded. Reindex to refresh the saved snapshot.";
+    }
+
     public void ApplySnapshot(SnapshotDocument snapshot)
     {
         _snapshot = snapshot;
@@ -446,6 +489,8 @@ public sealed class MainViewModel(
                     : _notes.GetValueOrDefault(WipClassifier.NoteKey(item.Repository.Repo.Path, item.Branch.Name))))
             .Where(row => string.IsNullOrWhiteSpace(SearchText) ||
                           row.Summary.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+            .Where(row => !(_configuration.ExcludedRepositoryPaths ?? []).Contains(row.Repository.Repo.Path,
+                StringComparer.OrdinalIgnoreCase))
             .ToList();
 
         // Counts describe the search results, so they stay meaningful while a filter is active.
@@ -457,12 +502,10 @@ public sealed class MainViewModel(
         VisibleCount = visible.Count;
 
         Groups.Clear();
-        foreach (var group in visible
-                     .GroupBy(row => row.Repository.Repo)
-                     .OrderBy(group => group.Key.Name, StringComparer.CurrentCultureIgnoreCase)
-                     .Select(group => new RepoGroup(group.Key.Name, group.Key.Path, _localizer,
-                         group.OrderBy(row => row.Kind).ThenBy(row => row.ScopeName,
-                             StringComparer.CurrentCultureIgnoreCase).ToList())))
+        var groups = visible.GroupBy(row => row.Repository.Repo);
+        var orderedGroups = SortGroups(groups);
+        foreach (var group in orderedGroups.Select(group => new RepoGroup(group.Key.Name, group.Key.Path, _localizer,
+                     SortRows(group).ToList())))
             Groups.Add(group);
 
         if (_selectedItem is not null && !visible.Contains(_selectedItem)) SelectedNode = null;
@@ -489,6 +532,56 @@ public sealed class MainViewModel(
             new(text["KindClean"], WipKind.CleanCandidate)
         ];
     }
+
+    private static ObservableCollection<SortOption> CreateSortOptions()
+    {
+        var text = new Localizer();
+        return
+        [
+            new(text["SortRepository"], WorkQueueSort.Repository),
+            new(text["SortBranch"], WorkQueueSort.Branch),
+            new(text["SortStatus"], WorkQueueSort.Status),
+            new(text["SortLastCommit"], WorkQueueSort.LastCommit),
+            new(text["SortDirectoryModified"], WorkQueueSort.DirectoryModified)
+        ];
+    }
+
+    private IOrderedEnumerable<IGrouping<RepoRef, WipRow>> SortGroups(IEnumerable<IGrouping<RepoRef, WipRow>> groups) =>
+        SelectedSortOption?.Value switch
+        {
+            WorkQueueSort.LastCommit => IsSortAscending
+                ? groups.OrderBy(group => LatestCommitAt(group))
+                : groups.OrderByDescending(group => LatestCommitAt(group)),
+            WorkQueueSort.DirectoryModified => IsSortAscending
+                ? groups.OrderBy(group => group.First().Repository.DirectoryModifiedAt)
+                : groups.OrderByDescending(group => group.First().Repository.DirectoryModifiedAt),
+            _ => IsSortAscending
+                ? groups.OrderBy(group => group.Key.Name, StringComparer.CurrentCultureIgnoreCase)
+                : groups.OrderByDescending(group => group.Key.Name, StringComparer.CurrentCultureIgnoreCase)
+        };
+
+    private static DateTimeOffset? LatestCommitAt(IEnumerable<WipRow> rows) => rows
+        .Select(row => row.Repository.Branches.Where(branch => branch.LastCommitAt is not null)
+            .Select(branch => branch.LastCommitAt).DefaultIfEmpty().Max())
+        .DefaultIfEmpty().Max();
+
+    private IEnumerable<WipRow> SortRows(IEnumerable<WipRow> rows) => SelectedSortOption?.Value switch
+    {
+        WorkQueueSort.Branch => IsSortAscending
+            ? rows.OrderBy(row => row.ScopeName, StringComparer.CurrentCultureIgnoreCase)
+            : rows.OrderByDescending(row => row.ScopeName, StringComparer.CurrentCultureIgnoreCase),
+        WorkQueueSort.Status => IsSortAscending
+            ? rows.OrderBy(row => row.Kind).ThenBy(row => row.ScopeName, StringComparer.CurrentCultureIgnoreCase)
+            : rows.OrderByDescending(row => row.Kind).ThenByDescending(row => row.ScopeName,
+                StringComparer.CurrentCultureIgnoreCase),
+        WorkQueueSort.LastCommit => IsSortAscending
+            ? rows.OrderBy(row => row.Branch?.LastCommitAt)
+            : rows.OrderByDescending(row => row.Branch?.LastCommitAt),
+        WorkQueueSort.DirectoryModified => IsSortAscending
+            ? rows.OrderBy(row => row.Repository.DirectoryModifiedAt)
+            : rows.OrderByDescending(row => row.Repository.DirectoryModifiedAt),
+        _ => rows.OrderBy(row => row.Kind).ThenBy(row => row.ScopeName, StringComparer.CurrentCultureIgnoreCase)
+    };
 
     private bool Set<T>(ref T field, T value, [CallerMemberName] string? name = null)
     {
@@ -530,12 +623,28 @@ public sealed class FilterOption(string label, WipKind? kind) : INotifyPropertyC
     }
 }
 
+public enum WorkQueueSort
+{
+    Repository,
+    Branch,
+    Status,
+    LastCommit,
+    DirectoryModified
+}
+
+public sealed class SortOption(string label, WorkQueueSort value)
+{
+    public string Label { get; } = label;
+    public WorkQueueSort Value { get; } = value;
+}
+
 /// <summary>The work items of a single repository, shown as one collapsible section.</summary>
 public sealed class RepoGroup(string name, string path, Localizer text, IReadOnlyList<WipRow> items)
 {
     public string Name { get; } = name;
     public string Path { get; } = path;
     public string OpenFolderText { get; } = text["OpenFolder"];
+    public string ExcludeText { get; } = text["ExcludeRepository"];
     public IReadOnlyList<WipRow> Items { get; } = items;
     public string CountText { get; } = items.Count.ToString(System.Globalization.CultureInfo.CurrentCulture);
 }
@@ -571,6 +680,8 @@ public sealed record WipRow(WipItem Item, Localizer Text, Note? Note)
     public bool HasNote => !string.IsNullOrWhiteSpace(Note?.Text);
     public string NoteText => Note?.Text ?? string.Empty;
     public string OpenFolderText => Text["OpenFolder"];
+    public string ExcludeText => Text["ExcludeRepository"];
+    public DateTimeOffset? LastCommitAt => Branch?.LastCommitAt;
 
     public string Summary => $"{Repository.Repo.Name} — {ScopeName}: {Detail}";
 }

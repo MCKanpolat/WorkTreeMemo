@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using System.Diagnostics;
+using WorkTreeMemo.App.ViewModels;
 
 namespace WorkTreeMemo.App.Views;
 
@@ -20,5 +21,11 @@ public partial class WorkView : UserControl
         var start = new ProcessStartInfo(executable) { UseShellExecute = false };
         start.ArgumentList.Add(path);
         Process.Start(start);
+    }
+
+    private async void ExcludeRepository(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not MenuItem { Tag: string path } || DataContext is not MainViewModel viewModel) return;
+        await viewModel.ExcludeRepositoryAsync(path);
     }
 }

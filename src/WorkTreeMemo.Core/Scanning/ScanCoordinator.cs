@@ -26,7 +26,8 @@ public sealed class ScanCoordinator(AppDataStore store, RepoDiscovery discovery,
             var configuration = await store.LoadConfigurationAsync(ct);
             var existing = await store.LoadSnapshotAsync(ct);
             var repositories = reindex
-                ? discovery.Discover(configuration.Roots, configuration.ExcludedDirectoryNames, ct)
+                ? discovery.Discover(configuration.Roots, configuration.ExcludedDirectoryNames, ct,
+                    configuration.ExcludedRepositoryPaths)
                 : existing.Repositories.Select(snapshot => snapshot.Repo).ToList();
             var snapshots = new System.Collections.Concurrent.ConcurrentBag<RepoSnapshot>();
             await Parallel.ForEachAsync(repositories,

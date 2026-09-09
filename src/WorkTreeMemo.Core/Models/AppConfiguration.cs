@@ -9,7 +9,8 @@ public sealed record AppConfiguration(
     int StaleAfterDays,
     string Culture,
     ThemePreference? Theme = null,
-    int? IgnoreBranchesOlderThanDays = null)
+    int? IgnoreBranchesOlderThanDays = null,
+    List<string>? ExcludedRepositoryPaths = null)
 {
     public static AppConfiguration Default { get; } = new(
         [], ["node_modules", "bin", "obj", ".venv"], ["main", "master", "develop"],

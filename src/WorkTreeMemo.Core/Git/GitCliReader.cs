@@ -17,7 +17,7 @@ public sealed class GitCliReader(TimeSpan? commandTimeout = null)
             var branches = await ReadBranchesAsync(repo.Path, baseBranches, ct);
             var worktrees = new List<WorktreeState>();
             foreach (var path in worktreePaths) worktrees.Add(await ReadWorktreeAsync(path, ct));
-            return new(repo, branches, worktrees, DateTimeOffset.UtcNow);
+            return new(repo, branches, worktrees, DateTimeOffset.UtcNow, null, ReadDirectoryModifiedAt(repo.Path));
         }
         catch (Exception ex) when (ex is IOException or InvalidOperationException or TimeoutException)
         {
@@ -160,6 +160,22 @@ public sealed class GitCliReader(TimeSpan? commandTimeout = null)
             out var value)
             ? value
             : 0;
+
+    private static DateTimeOffset? ReadDirectoryModifiedAt(string path)
+    {
+        try
+        {
+            return Directory.Exists(path) ? Directory.GetLastWriteTimeUtc(path) : null;
+        }
+        catch (IOException)
+        {
+            return null;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return null;
+        }
+    }
 
     private static string? NullIfEmpty(string? value) => string.IsNullOrWhiteSpace(value) ? null : value;
 }

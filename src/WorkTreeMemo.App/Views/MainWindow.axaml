@@ -63,7 +63,7 @@
 
             <!-- Toolbar -->
             <Border Background="{DynamicResource CanvasBrush}" Padding="22,16,22,12">
-                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="14">
+                <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="14">
 
                     <Grid IsVisible="{Binding IsWorkOpen}" ColumnDefinitions="*,Auto" MaxWidth="440"
                           HorizontalAlignment="Left">
@@ -81,11 +81,29 @@
                         <TextBlock Text="{Binding Text[Settings]}" Classes="title" VerticalAlignment="Center" />
                     </StackPanel>
 
-                    <TextBlock Grid.Column="1" Text="{Binding Text[Scanning]}" Classes="muted"
-                               VerticalAlignment="Center" IsVisible="{Binding IsBusy}" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6"
+                                IsVisible="{Binding IsWorkOpen}" VerticalAlignment="Center">
+                        <Button Content="{Binding SortDirectionToolTip}" MinWidth="122"
+                                ToolTip.Tip="{Binding SortDirectionToolTip}"
+                                Command="{Binding ToggleSortDirectionCommand}" />
+                        <ComboBox Width="210" ItemsSource="{Binding SortOptions}"
+                                  SelectedItem="{Binding SelectedSortOption}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:SortOption">
+                                    <TextBlock Text="{Binding Label}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
 
-                    <Button Grid.Column="2" Classes="primary" Content="{Binding Text[Reindex]}"
-                            Command="{Binding ReindexCommand}" />
+                    <StackPanel Grid.Column="2" Spacing="4" VerticalAlignment="Center"
+                                IsVisible="{Binding IsBusy}">
+                        <TextBlock Text="{Binding Text[Scanning]}" Classes="muted" FontSize="12" />
+                        <ProgressBar Width="108" Height="4" IsIndeterminate="True" />
+                    </StackPanel>
+
+                    <Button Grid.Column="3" Classes="primary" Content="{Binding Text[Reindex]}"
+                            Command="{Binding ReindexCommand}" IsVisible="{Binding !IsBusy}" />
                 </Grid>
             </Border>
 

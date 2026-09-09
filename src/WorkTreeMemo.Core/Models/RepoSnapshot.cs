@@ -5,4 +5,5 @@ public sealed record RepoSnapshot(
     IReadOnlyList<BranchState> Branches,
     IReadOnlyList<WorktreeState> Worktrees,
     DateTimeOffset ScannedAt,
-    string? Error = null);
+    string? Error = null,
+    DateTimeOffset? DirectoryModifiedAt = null);

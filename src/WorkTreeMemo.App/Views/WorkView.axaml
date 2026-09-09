@@ -22,6 +22,8 @@
                                     <ContextMenu>
                                         <MenuItem Header="{Binding OpenFolderText}" Tag="{Binding Path}"
                                                   Click="OpenFolder" />
+                                        <MenuItem Header="{Binding ExcludeText}" Tag="{Binding Path}"
+                                                  Click="ExcludeRepository" />
                                     </ContextMenu>
                                 </Grid.ContextMenu>
                                 <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold"
@@ -38,6 +40,8 @@
                                     <ContextMenu>
                                         <MenuItem Header="{Binding OpenFolderText}"
                                                   Tag="{Binding Repository.Repo.Path}" Click="OpenFolder" />
+                                        <MenuItem Header="{Binding ExcludeText}"
+                                                  Tag="{Binding Repository.Repo.Path}" Click="ExcludeRepository" />
                                     </ContextMenu>
                                 </Grid.ContextMenu>
                                 <Border Classes="badge"

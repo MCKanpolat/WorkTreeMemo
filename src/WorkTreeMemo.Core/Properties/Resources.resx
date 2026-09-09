@@ -17,6 +17,13 @@
   <data name="BackToWork" xml:space="preserve"><value>Back to work queue</value></data>
   <data name="ClearSearch" xml:space="preserve"><value>Clear search</value></data>
   <data name="Scanning" xml:space="preserve"><value>Scanning…</value></data>
+  <data name="SortRepository" xml:space="preserve"><value>Repository</value></data>
+  <data name="SortBranch" xml:space="preserve"><value>Branch / worktree</value></data>
+  <data name="SortStatus" xml:space="preserve"><value>Status</value></data>
+  <data name="SortLastCommit" xml:space="preserve"><value>Last commit date</value></data>
+  <data name="SortDirectoryModified" xml:space="preserve"><value>Folder modified date</value></data>
+  <data name="SortAscending" xml:space="preserve"><value>Sort ascending</value></data>
+  <data name="SortDescending" xml:space="preserve"><value>Sort descending</value></data>
 
   <data name="FilterAll" xml:space="preserve"><value>Everything</value></data>
   <data name="KindDirty" xml:space="preserve"><value>Uncommitted</value></data>
@@ -51,6 +58,7 @@
   <data name="FolderPath" xml:space="preserve"><value>Folder path, for example ~/Development</value></data>
   <data name="ChooseFolder" xml:space="preserve"><value>Choose folder</value></data>
   <data name="OpenFolder" xml:space="preserve"><value>Open folder</value></data>
+  <data name="ExcludeRepository" xml:space="preserve"><value>Exclude repository</value></data>
   <data name="Depth" xml:space="preserve"><value>Depth</value></data>
   <data name="AddRoot" xml:space="preserve"><value>Add root</value></data>
   <data name="RemoveRoot" xml:space="preserve"><value>Remove selected</value></data>
