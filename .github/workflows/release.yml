@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v5
         with:
@@ -51,6 +51,8 @@ jobs:
             cp -R "$publish_directory"/. "$bundle_directory/Contents/MacOS/"
             cp src/WorkTreeMemo.App/Assets/worktreememo-icon.icns "$bundle_directory/Contents/Resources/"
             sed "s/__VERSION__/$VERSION/g" packaging/macos/Info.plist > "$bundle_directory/Contents/Info.plist"
+            codesign --force --deep --sign - "$bundle_directory"
+            codesign --verify --deep --strict --verbose=2 "$bundle_directory"
             (cd artifacts/macos && zip -r "../release/$archive_name" WorkTreeMemo.app)
           }
 
