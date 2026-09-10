@@ -1,4 +1,4 @@
-<p align="center">
+test <p align="center">
   <img src="src/WorkTreeMemo.App/Assets/worktreememo-icon.png" alt="WorkTreeMemo icon" width="160" />
 </p>
 
